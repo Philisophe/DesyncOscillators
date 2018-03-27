@@ -76,8 +76,8 @@ def model2 (vector,t,alpha, A, omega, twist):
     return dzdt
 
 # time points
-stepsize = 1
-hours = 24
+stepsize = 10
+hours = 100
 start = 0        
 t = np.linspace(start,hours,hours*stepsize) # generates the timepoints from start, hours-long with a stepsize
 #notice, that np.linspace(start, hours, stepsize) doesn't really provide you with a stepsize you want it to be
@@ -86,11 +86,11 @@ t = np.linspace(start,hours,hours*stepsize) # generates the timepoints from star
 # initial conditions
 state0 = [1,1]
 state01 = [0,1]
-state02 = [2,2]
+state02 = [4,4]
 state03 = [1.5,1]
 
 # sets of parameters
-params = (0.5,1,(np.pi*2)/24, 0) #relaxation rate (alpha/lambda); amplitude (A); angle speed (omega); twist
+params = (0.1,1,(np.pi*2)/24, 0.5) #relaxation rate (alpha/lambda); amplitude (A); angle speed (omega); twist
 params1 = (1,1,(np.pi*2)/24, 0)
 params2 = (0.5,1,(np.pi*2)/24, 0.5)
 params3 = (1,1,(np.pi*2)/24, 0.5)
@@ -111,12 +111,55 @@ x2 = odeint(model2, state02, t, args=(params2))
 x3 = odeint(model2, state02, t, args=(params3))
 x4 = odeint(model2, state02, t, args=(params4))
 
+# Here we extract the 0-crossings (only changes from + to -, without from - to +), mins and maxes
+
+# Local extrema
+extrVal = [] # values
+extrT = [] # timepoints for respective values
+
+# Should I use y or x? Does it even matter? I wouldn't think it does
+
+"""
+zeroCross=[]
+for i in range(len(x0[:,0]-1)):
+    if (x0[i,0]>0 and x0[i+1,0]<=0):
+        zeroCross.append((t[i]+t[i+1])/2) # we append to zeroCross the approx. time of 0-crossing
+"""
+#the indices of x-values just before the crossings
+zeroCrossInd = np.where(np.diff(np.sign(x0[:,0])))[0]
+# the values themselves, should be really close to 0
+zeroCrossVal = (x0[zeroCrossInd,0]+x0[zeroCrossInd+1,0])/2
+#the approximate times of actual crossings
+zeroCrossT = (t[zeroCrossInd]+t[zeroCrossInd+1])/2 # takes the time in between two x-values of opposing signs
+
+period = np.diff(zeroCrossT)
+
+# Looking for local maxima, minima
+# Maybe np.diff(np.sign(np.diff(x0[:,0])))? When result of np.diff() changes the sign - it's when the max of min occured 
+diff = np.diff(np.sign(np.diff(x0[:,0])))
+for i in range(len(diff)):
+    if diff[i]!=0:
+        extrVal.append(np.mean(x0[i:i+2,0]))
+        extrT.append(np.mean(t[i:i+2]))
+
+# different lists for minima and maxima        
+mins=[]
+maxs=[]
+for i in extrVal:
+    if i<0:
+        mins.append(i)
+    else:
+        maxs.append(i)
+        
+
 
 
 # time-series
 plt.figure(figsize=(12,5))
-plt.plot(t, x0[:,0], label = 'x from x0')
-plt.plot(t, x4[:,0], label = 'x from x4')
+plt.plot(t, x0[:,0], 'o', label = 'x from x0')
+#plt.plot(t, x4[:,0], label = 'x from x4')
+plt.plot(zeroCrossT, np.zeros(len(zeroCrossT)), 'r+', label = 'zero crossings of x-coordinate of x0') 
+plt.plot(extrT,extrVal,'-v')
 plt.xlim(start-1, hours-start+1) #shows the x from a little bit before the start of timepoints, to a little bit after the end
 plt.ylim(-2.5,4.5)
 
