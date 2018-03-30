@@ -18,9 +18,10 @@ def model2 (vector,t,alpha, A, omega, twist):
     dzdt = [dxdt, dydt]
     return dzdt
 
+
 # time points
-stepsize = 1
-hours = 100
+stepsize = 10
+hours = 210
 start = 0        
 t = np.linspace(start,hours,hours*stepsize) # generates the timepoints from start, hours-long with a stepsize
 #notice, that np.linspace(start, hours, stepsize) doesn't really provide you with a stepsize you want it to be
@@ -47,85 +48,23 @@ x2 = odeint(model2, state02, t, args=(params2))
 x3 = odeint(model2, state02, t, args=(params3))
 x4 = odeint(model2, state02, t, args=(params4))
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"""
-# Integrate the finite number of Poincare oscillators using scipy.integrate.odeint and 
-# return the container with integration points, which can be then plotted.
 
-# Parameters of the function: 
-# type of model we use (usually modified Poincare oscillator), 
-# number of oscillators one want to integrate, initial conditions (states), 
-# parameters of the equation given to odeint() function, timepoints.
 
-# Returns list of arrays 'solutions', containing solutions for the oscillators as (x,y).
-# Returns list of dictionaries 'analysisOfSolutions', containing some outputs of the analysis.
-  
-def odeP (model=model2, numOsc=1, state=[[1,1]], timepoints=np.linspace(0,100,100), params=[(0.1,1,(np.pi*2)/24,0)]):
-    solutions = [] # Storing variable for the solutions. solutions[0] corresponds to the solutions of the 0-th oscillator
 
-    readouts = ['period', 'extrVal', 'extrT', 'zeroCrossInd', 'zeroCrossVal', 'zeroCrossT', 'mins', 'maxs', 'fold', 'SyncIndex', 'Variance']
-    analysisOfSolutions = [] # list of dictionaries, containing the values of readouts for each solution
-    dict.fromkeys(readouts)
+
+x5 = []
+for i in range(10):
+    params = (0.1,1,(np.pi*2)/(24+ np.random.randn(1).tolist()[0]), 0.5) #np.random.randn(1) draws 1 number from standart normal distribution, then converts it to list of length 1 and takes the only number it contains
+    x5.append(odeint(model2, state02, t, args=(params)))
+
     
-    
-    for i in range(numOsc):
-        solutions.append(odeint(model, state[i], timepoints, args = (params[i]))
-        
-        analysisOfSolutions.append(dict.fromkeys(readouts))
-       
-        #the indices of x-values just before the crossings
-        zeroCrossInd = np.where(np.diff(np.sign(solutions[i][:,0])))[0]
-        
-        # the values themselves, should be really close to 0
-        zeroCrossVal = (solutions[i][zeroCrossInd,0]+solutions[i][zeroCrossInd+1,0])/2
-        
-        #the approximate times of actual crossings
-        zeroCrossT = (timepoints[zeroCrossInd]+timepoints[zeroCrossInd+1])/2 # takes the time in between two x-values of opposing signs
-        period = np.diff(zeroCrossT)
-        
-        # Storing variables for local extrema
-        extrVal = [] # values
-        extrT = [] # timepoints for respective values
 
-        # Looking for local maxima, minima
-        # When result of np.diff() changes the sign - it's when the max of min occured 
-        diff = np.diff(np.sign(np.diff(solutions[i][:,0])))
-        for j in range(len(diff)):
-            if diff[j]!=0:
-                extrVal.append(np.mean(solutions[j:j+2,0]))
-                extrT.append(np.mean(timepoints[j:j+2]))
-        
-        # different lists for minima and maxima  
-        # Can only differentiate them if they have different sign
-        mins=[]
-        maxs=[]
-        for k in extrVal:
-            if k<0:
-                mins.append(k)
-            else:
-                maxs.append(k)
-        
-        fold = []
-        if mins and maxs:  # If lists (mins and maxs) aren't empty, then
-            for u in range(len(min(mins,maxs)))  # Take the smallest list (out of maxs and mins)
-                fold.append(abs(maxs[u]/mins[u]))  # Then calculate the fraction max/min for a closest pair of maxs and mins, take the absolute value
-                
 
-        analysisOfSolutions[i]['zeroCrossInd'] = zeroCrossInd
-        analysisOfSolutions[i]['zeroCrossVal'] = zeroCrossVal
-        analysisOfSolutions[i]['zeroCrossT'] = zeroCrossT
-        analysisOfSolutions[i]['period'] = period        
-        analysisOfSolutions[i]['extrVal'] = extrVal
-        analysisOfSolutions[i]['extrT'] = extrT
-        analysisOfSolutions[i]['mins'] = mins
-        analysisOfSolutions[i]['maxs'] = maxs
-        analysisOfSolutions[i]['fold'] = fold
-        
-    return solutions, analysisOfSolutions
-"""
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 
 # Here we extract the 0-crossings (only changes from + to -, without from - to +), mins and maxes
+############################
+
 # Local extrema
 extrVal = [] # values
 extrT = [] # timepoints for respective values
@@ -140,13 +79,6 @@ zeroCrossVal = (x0[zeroCrossInd,0]+x0[zeroCrossInd+1,0])/2
 zeroCrossT = (t[zeroCrossInd]+t[zeroCrossInd+1])/2 # takes the time in between two x-values of opposing signs
 period = np.diff(zeroCrossT)
 
-
-
-
-
-
-
-
 # Looking for local maxima, minima
 # Maybe np.diff(np.sign(np.diff(x0[:,0])))? When result of np.diff() changes the sign - it's when the max of min occured 
 diff = np.diff(np.sign(np.diff(x0[:,0])))
@@ -154,11 +86,6 @@ for i in range(len(diff)):
     if diff[i]!=0:
         extrVal.append(np.mean(x0[i:i+2,0]))
         extrT.append(np.mean(t[i:i+2]))
-
-
-
-
-
 
 
 # different lists for minima and maxima        
@@ -172,24 +99,15 @@ for i in extrVal:
 
 
 
-
-
-
-
 #relative amplitude - the last 3 elements of maxs and mins are averaged and divided by the last element of 0-crossing
 # if less than 3 elements in lists mins and maxs - then no average        
+"""
 if (len(maxs)>=3 and len(mins)>=3):
     relA = np.mean(maxs[len(maxs)-1:len(maxs)-4:-1]) - np.mean(mins[len(mins)-1:len(mins)-4:-1]) / zeroCrossVal[-1] 
-else:
+else :
     relA = (maxs[-1]-mins[-1])/zeroCrossVal[-1]
-
-fold = maxs[-1]/mins[-1]
-
-
-
-
-
-
+"""
+#fold = maxs[-1]/mins[-1]
 
 
 # _____________________________________________
@@ -197,7 +115,8 @@ fold = maxs[-1]/mins[-1]
 # PLOTTING
 # time-series
 plt.figure(figsize=(12,5))
-plt.plot(t, x0[:,0], 'o', label = 'x from x0')
+for i in range(10):
+    plt.plot(t, x5[i][:,0], 'o', label = 'osc' + str(i) + ' from x5')
 #plt.plot(t, x4[:,0], label = 'x from x4')
 plt.plot(zeroCrossT, np.zeros(len(zeroCrossT)), 'r+', label = 'zero crossings of x-coordinate of x0') 
 plt.plot(extrT,extrVal,'-v')
@@ -208,38 +127,22 @@ plt.legend()
 plt.show()
 
 
+# STRANGE THINGS:
+# ---------------
+# 1) 
+# Why even stepsize=1 is enough to produce relatively smooth oscillation? 
+# I mean, with 10 you don't see any sudden changes, so with 100 it should be alright, 
+# but I would expect to see a lot of problems with stepsize=1
 
+# 2) 
+# Why should I even think about power spectra? 
+# And which spectra precisely am I interested in and why? E.g., power or energy, periodogram, if so - which window type?
+# What's the point of plotting the spectra of the oscillations with known period and known frequency? 
+# I mean, with coupled oscillators, it could be complex enough, but otherwise?
 
-
-
-
-
-
-
-
-
-
-"""
-So the next step is to identify the functions that need to be "functionized", in order o separate the methods from the data itself
-"""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# 3) 
+# Is there any sence to plot graphs with different amplitude? 
+# It just changes how big the limit cycle is (r=1,2,3 ...), nothing else.
 
 #______________________________________________
 
