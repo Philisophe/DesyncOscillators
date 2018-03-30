@@ -6,7 +6,6 @@ Created on Thu Mar 15 17:37:23 2018
 @author: kalashnikov
 """
 from scipy.integrate import odeint
-import scipy.signal as sig
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -50,6 +49,7 @@ x4 = odeint(model2, state02, t, args=(params4))
 
 
 
+
 # Here we extract the 0-crossings (only changes from + to -, without from - to +), mins and maxes
 # Local extrema
 extrVal = [] # values
@@ -57,14 +57,12 @@ extrT = [] # timepoints for respective values
 
 # Should I use y or x when finding the 0-crossings, mins and maxs? 
 # Does it even matter? I wouldn't think it does
-
 #the indices of x-values just before the crossings
 zeroCrossInd = np.where(np.diff(np.sign(x0[:,0])))[0]
 # the values themselves, should be really close to 0
 zeroCrossVal = (x0[zeroCrossInd,0]+x0[zeroCrossInd+1,0])/2
 #the approximate times of actual crossings
 zeroCrossT = (t[zeroCrossInd]+t[zeroCrossInd+1])/2 # takes the time in between two x-values of opposing signs
-
 period = np.diff(zeroCrossT)
 
 # Looking for local maxima, minima
@@ -75,6 +73,7 @@ for i in range(len(diff)):
         extrVal.append(np.mean(x0[i:i+2,0]))
         extrT.append(np.mean(t[i:i+2]))
 
+
 # different lists for minima and maxima        
 mins=[]
 maxs=[]
@@ -83,12 +82,7 @@ for i in extrVal:
         mins.append(i)
     else:
         maxs.append(i)
-#here are same ODEs with different initial conditions
-"""x0 = odeint(model2, state0, t, args=(params))
-x1 = odeint(model2, state01, t, args=(params))
-x2 = odeint(model2, state02, t, args=(params))
-x3 = odeint(model2, state03, t, args=(params))
-"""
+
 
 
 #relative amplitude - the last 3 elements of maxs and mins are averaged and divided by the last element of 0-crossing
