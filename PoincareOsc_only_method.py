@@ -19,7 +19,7 @@ def model2 (vector,t,alpha, A, omega, twist):
     dzdt = [dxdt, dydt]
     return dzdt
 
-t = np.linspace(0,10000,100000)
+t = np.linspace(0,1000,10000)
 
 # Integrate the finite number of Poincare oscillators using scipy.integrate.odeint and 
 # return the container with integration points, which can be then plotted.
@@ -95,24 +95,50 @@ def odeP (model=model2, numOsc=1, state=[[1,1]], timepoints=np.linspace(0,100,10
     
     return solutions, analysisOfSolutions
 
+#Running average
+# x - data, N - window size, N2 - number of runs (if N2=0 - 1 run, if N2=1 - 2 runs etc.)
+def running_mean1(x, N,N2=0):
+    if N2==0:
+        cumsum = np.cumsum(np.insert(x, 0, 0)) 
+        return (cumsum[N:] - cumsum[:-N]) / float(N)
+    else:
+        cumsum = np.cumsum(np.insert(x, 0, 0)) 
+        return running_mean2(((cumsum[N:] - cumsum[:-N]) / float(N)),N,N2-1)
+
 ###############################
 ###############################
     
-state0 = []
+
 x, anls = odeP(model=model2,numOsc=10,state=[[4,4]]*10,timepoints=t)
 x1, anls1 = odeP(model=model2,numOsc=100,state=[[4,4]]*100,timepoints=t)
+x2, anls1 = odeP(model=model2,numOsc=1000,state=[[4,4]]*1000,timepoints=t)
+
+
+onlyX = []
+onlyX1=[]
+onlyX2=[]
+for i in x:
+    onlyX.append(i[:,0])
+
+for i in x1:
+    onlyX1.append(i[:,0])
+
+for i in x2:
+    onlyX2.append(i[:,0])
+
+
 
 plt.figure(figsize=(12,5))
-"""
-for i in range(len(x)):
-    plt.plot(t,x[i][:,0], 'o', label = 'x from x' + str(i))
-"""
+
 meanOsc=np.mean(x,axis=0)
 plt.plot(t,meanOsc[:,0], 'o', label = 'mean values of 10 oscillators')
 
 meanOsc1=np.mean(x1,axis=0)
 plt.plot(t,meanOsc1[:,0], 'o', label = 'mean values of 100 oscillators')
 
+plt.plot(t,np.var(onlyX,0),'-',label='Variance of 10 oscillators')
+plt.plot(t,np.var(onlyX1,0),'-', label = 'Variance of 100 oscillators')
+plt.plot(t,np.var(onlyX2,0),'-', label = 'Variance of 1000 oscillators')
 
 plt.legend()
 plt.show()
@@ -131,6 +157,17 @@ To fix it - put the exception inside, so if the len() of params, state[] and num
 
 
 
+"""
+for i in range(len(x)):
+    plt.plot(t,x[i][:,0], 'o', label = 'x from x' + str(i))
+"""
 
+plt.plot(t[0:-2],running_mean(v2,3))
+plt.plot(t[0:-13],running_mean(v2,14))
+plt.plot(t[0:-50],running_mean(v2,51))
+plt.plot(t[0:-100],running_mean(v2,101))
 
-
+plt.plot(t[0:-9],running_mean(np.var(onlyX,0),10),'-',label='Variance of 10 oscillators')
+plt.plot(t[0:-9],running_mean(np.var(onlyX1,0),10),'-', label = 'Variance of 100 oscillators')
+plt.plot(t[0:-9],running_mean(np.var(onlyX2,0),10),'-', label = 'Variance of 1000 oscillators')
+plt.legend()
