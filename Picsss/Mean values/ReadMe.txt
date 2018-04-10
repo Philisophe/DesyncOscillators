@@ -1,0 +1,1 @@
+These pics represent execution of a certain number of oscillators with some randomness in the omega-parameter. In some pics only mean value is depicted for simplicity. Different versions of the same pic represent different executions of the very same code.

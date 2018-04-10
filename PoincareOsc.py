@@ -20,7 +20,7 @@ def model2 (vector,t,alpha, A, omega, twist):
 
 # time points
 stepsize = 1
-hours = 100
+hours = 30
 start = 0        
 t = np.linspace(start,hours,hours*stepsize) # generates the timepoints from start, hours-long with a stepsize
 #notice, that np.linspace(start, hours, stepsize) doesn't really provide you with a stepsize you want it to be
@@ -47,8 +47,8 @@ x2 = odeint(model2, state02, t, args=(params2))
 x3 = odeint(model2, state02, t, args=(params3))
 x4 = odeint(model2, state02, t, args=(params4))
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"""
+
+
 # Integrate the finite number of Poincare oscillators using scipy.integrate.odeint and 
 # return the container with integration points, which can be then plotted.
 
@@ -65,13 +65,9 @@ def odeP (model=model2, numOsc=1, state=[[1,1]], timepoints=np.linspace(0,100,10
 
     readouts = ['period', 'extrVal', 'extrT', 'zeroCrossInd', 'zeroCrossVal', 'zeroCrossT', 'mins', 'maxs', 'fold', 'SyncIndex', 'Variance']
     analysisOfSolutions = [] # list of dictionaries, containing the values of readouts for each solution
-    dict.fromkeys(readouts)
-    
-    
     for i in range(numOsc):
-        solutions.append(odeint(model, state[i], timepoints, args = (params[i]))
-        
-        analysisOfSolutions.append(dict.fromkeys(readouts))
+        solutions.append(odeint(model, state[0], timepoints, args = (params[0]))) #for each cycle turn, append the integrated values inside the solutions-list
+        analysisOfSolutions.append(dict.fromkeys(readouts)) #
        
         #the indices of x-values just before the crossings
         zeroCrossInd = np.where(np.diff(np.sign(solutions[i][:,0])))[0]
@@ -107,10 +103,9 @@ def odeP (model=model2, numOsc=1, state=[[1,1]], timepoints=np.linspace(0,100,10
         
         fold = []
         if mins and maxs:  # If lists (mins and maxs) aren't empty, then
-            for u in range(len(min(mins,maxs)))  # Take the smallest list (out of maxs and mins)
+            for u in range(len(min(mins,maxs))):  # Take the smallest list (out of maxs and mins)
                 fold.append(abs(maxs[u]/mins[u]))  # Then calculate the fraction max/min for a closest pair of maxs and mins, take the absolute value
                 
-
         analysisOfSolutions[i]['zeroCrossInd'] = zeroCrossInd
         analysisOfSolutions[i]['zeroCrossVal'] = zeroCrossVal
         analysisOfSolutions[i]['zeroCrossT'] = zeroCrossT
@@ -120,15 +115,12 @@ def odeP (model=model2, numOsc=1, state=[[1,1]], timepoints=np.linspace(0,100,10
         analysisOfSolutions[i]['mins'] = mins
         analysisOfSolutions[i]['maxs'] = maxs
         analysisOfSolutions[i]['fold'] = fold
-        
+
+    
     return solutions, analysisOfSolutions
-"""
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 
 # Here we extract the 0-crossings (only changes from + to -, without from - to +), mins and maxes
-# Local extrema
-extrVal = [] # values
-extrT = [] # timepoints for respective values
 
 # Should I use y or x when finding the 0-crossings, mins and maxs? 
 # Does it even matter? I wouldn't think it does
@@ -144,8 +136,9 @@ period = np.diff(zeroCrossT)
 
 
 
-
-
+# Local extrema
+extrVal = [] # values
+extrT = [] # timepoints for respective values
 
 # Looking for local maxima, minima
 # Maybe np.diff(np.sign(np.diff(x0[:,0])))? When result of np.diff() changes the sign - it's when the max of min occured 
@@ -154,8 +147,6 @@ for i in range(len(diff)):
     if diff[i]!=0:
         extrVal.append(np.mean(x0[i:i+2,0]))
         extrT.append(np.mean(t[i:i+2]))
-
-
 
 
 
@@ -170,25 +161,7 @@ for i in extrVal:
     else:
         maxs.append(i)
 
-
-
-
-
-
-
-#relative amplitude - the last 3 elements of maxs and mins are averaged and divided by the last element of 0-crossing
-# if less than 3 elements in lists mins and maxs - then no average        
-if (len(maxs)>=3 and len(mins)>=3):
-    relA = np.mean(maxs[len(maxs)-1:len(maxs)-4:-1]) - np.mean(mins[len(mins)-1:len(mins)-4:-1]) / zeroCrossVal[-1] 
-else:
-    relA = (maxs[-1]-mins[-1])/zeroCrossVal[-1]
-
 fold = maxs[-1]/mins[-1]
-
-
-
-
-
 
 
 
@@ -213,27 +186,9 @@ plt.show()
 
 
 
-
-
-
-
-
-
 """
 So the next step is to identify the functions that need to be "functionized", in order o separate the methods from the data itself
 """
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
