@@ -97,13 +97,13 @@ def odeP (model=model2, numOsc=1, state=[[1,1]], timepoints=np.linspace(0,100,10
 
 #Running average
 # x - data, N - window size, N2 - number of runs (if N2=0 - 1 run, if N2=1 - 2 runs etc.)
-def running_mean1(x, N,N2=0):
+def running_mean(x, N,N2=0):
     if N2==0:
         cumsum = np.cumsum(np.insert(x, 0, 0)) 
         return (cumsum[N:] - cumsum[:-N]) / float(N)
     else:
         cumsum = np.cumsum(np.insert(x, 0, 0)) 
-        return running_mean2(((cumsum[N:] - cumsum[:-N]) / float(N)),N,N2-1)
+        return running_mean(((cumsum[N:] - cumsum[:-N]) / float(N)),N,N2-1)
 
 ###############################
 ###############################
@@ -162,12 +162,47 @@ for i in range(len(x)):
     plt.plot(t,x[i][:,0], 'o', label = 'x from x' + str(i))
 """
 
+"""
+
+plt.figure(figsize=(12,5))
+
+# VARIANCES
+
+#As they are
+plt.plot(t,np.var(onlyX,0),'-',label='Variance of 10 oscillators')
+plt.plot(t,np.var(onlyX1,0),'-', label = 'Variance of 100 oscillators')
+plt.plot(t,np.var(onlyX2,0),'-', label = 'Variance of 1000 oscillators')
+
+
+# Smoothing a bit
 plt.plot(t[0:-2],running_mean(v2,3))
 plt.plot(t[0:-13],running_mean(v2,14))
 plt.plot(t[0:-50],running_mean(v2,51))
 plt.plot(t[0:-100],running_mean(v2,101))
-
+#
 plt.plot(t[0:-9],running_mean(np.var(onlyX,0),10),'-',label='Variance of 10 oscillators')
 plt.plot(t[0:-9],running_mean(np.var(onlyX1,0),10),'-', label = 'Variance of 100 oscillators')
 plt.plot(t[0:-9],running_mean(np.var(onlyX2,0),10),'-', label = 'Variance of 1000 oscillators')
+
+
+# Hardcore smoothing
+plt.plot(t[0:-297],running_mean(np.var(onlyX,0),100,2),'-',label='Variance of 10 oscillators')
+plt.plot(t[0:-297],running_mean(np.var(onlyX1,0),100,2),'-', label = 'Variance of 100 oscillators')
+plt.plot(t[0:-297],running_mean(np.var(onlyX2,0),100,2),'-', label = 'Variance of 1000 oscillators')
+
+
+# MEANS
+meanOsc=np.mean(x,axis=0)
+plt.plot(t,meanOsc[:,0], '-', label = 'mean values of 10 oscillators')
+meanOsc1=np.mean(x1,axis=0)
+plt.plot(t,meanOsc1[:,0], '-', label = 'mean values of 100 oscillators')
+meanOsc2=np.mean(x2,axis=0)
+plt.plot(t,meanOsc2[:,0], '-', label = 'mean values of 1000 oscillators')
+
+
 plt.legend()
+plt.show()
+
+
+
+"""
