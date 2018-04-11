@@ -42,82 +42,11 @@ params4 = (0.1,1,(np.pi*2)/24, 0.5)
 # solves ODEs
 #here are ODEs with different parameters but same initial conditions
 x0 = odeint(model2, state02, t, args=(params))
-x1 = odeint(model2, state02, t, args=(params1))
-x2 = odeint(model2, state02, t, args=(params2))
-x3 = odeint(model2, state02, t, args=(params3))
-x4 = odeint(model2, state02, t, args=(params4))
+#x1 = odeint(model2, state02, t, args=(params1))
+#x2 = odeint(model2, state02, t, args=(params2))
+#x3 = odeint(model2, state02, t, args=(params3))
+#x4 = odeint(model2, state02, t, args=(params4))
 
-
-
-# Integrate the finite number of Poincare oscillators using scipy.integrate.odeint and 
-# return the container with integration points, which can be then plotted.
-
-# Parameters of the function: 
-# type of model we use (usually modified Poincare oscillator), 
-# number of oscillators one want to integrate, initial conditions (states), 
-# parameters of the equation given to odeint() function, timepoints.
-
-# Returns list of arrays 'solutions', containing solutions for the oscillators as (x,y).
-# Returns list of dictionaries 'analysisOfSolutions', containing some outputs of the analysis.
-  
-def odeP (model=model2, numOsc=1, state=[[1,1]], timepoints=np.linspace(0,100,100), params=[(0.1,1,(np.pi*2)/24,0)]):
-    solutions = [] # Storing variable for the solutions. solutions[0] corresponds to the solutions of the 0-th oscillator
-
-    readouts = ['period', 'extrVal', 'extrT', 'zeroCrossInd', 'zeroCrossVal', 'zeroCrossT', 'mins', 'maxs', 'fold', 'SyncIndex', 'Variance']
-    analysisOfSolutions = [] # list of dictionaries, containing the values of readouts for each solution
-    for i in range(numOsc):
-        solutions.append(odeint(model, state[0], timepoints, args = (params[0]))) #for each cycle turn, append the integrated values inside the solutions-list
-        analysisOfSolutions.append(dict.fromkeys(readouts)) #
-       
-        #the indices of x-values just before the crossings
-        zeroCrossInd = np.where(np.diff(np.sign(solutions[i][:,0])))[0]
-        
-        # the values themselves, should be really close to 0
-        zeroCrossVal = (solutions[i][zeroCrossInd,0]+solutions[i][zeroCrossInd+1,0])/2
-        
-        #the approximate times of actual crossings
-        zeroCrossT = (timepoints[zeroCrossInd]+timepoints[zeroCrossInd+1])/2 # takes the time in between two x-values of opposing signs
-        period = np.diff(zeroCrossT)
-        
-        # Storing variables for local extrema
-        extrVal = [] # values
-        extrT = [] # timepoints for respective values
-
-        # Looking for local maxima, minima
-        # When result of np.diff() changes the sign - it's when the max of min occured 
-        diff = np.diff(np.sign(np.diff(solutions[i][:,0])))
-        for j in range(len(diff)):
-            if diff[j]!=0:
-                extrVal.append(np.mean(solutions[j:j+2,0]))
-                extrT.append(np.mean(timepoints[j:j+2]))
-        
-        # different lists for minima and maxima  
-        # Can only differentiate them if they have different sign
-        mins=[]
-        maxs=[]
-        for k in extrVal:
-            if k<0:
-                mins.append(k)
-            else:
-                maxs.append(k)
-        
-        fold = []
-        if mins and maxs:  # If lists (mins and maxs) aren't empty, then
-            for u in range(len(min(mins,maxs))):  # Take the smallest list (out of maxs and mins)
-                fold.append(abs(maxs[u]/mins[u]))  # Then calculate the fraction max/min for a closest pair of maxs and mins, take the absolute value
-                
-        analysisOfSolutions[i]['zeroCrossInd'] = zeroCrossInd
-        analysisOfSolutions[i]['zeroCrossVal'] = zeroCrossVal
-        analysisOfSolutions[i]['zeroCrossT'] = zeroCrossT
-        analysisOfSolutions[i]['period'] = period        
-        analysisOfSolutions[i]['extrVal'] = extrVal
-        analysisOfSolutions[i]['extrT'] = extrT
-        analysisOfSolutions[i]['mins'] = mins
-        analysisOfSolutions[i]['maxs'] = maxs
-        analysisOfSolutions[i]['fold'] = fold
-
-    
-    return solutions, analysisOfSolutions
 
 
 # Here we extract the 0-crossings (only changes from + to -, without from - to +), mins and maxes
@@ -170,12 +99,12 @@ fold = maxs[-1]/mins[-1]
 # PLOTTING
 # time-series
 plt.figure(figsize=(12,5))
-plt.plot(t, x0[:,0], 'o', label = 'x from x0')
+#plt.plot(t, x0[:,0], 'o', label = 'x from x0')
 #plt.plot(t, x4[:,0], label = 'x from x4')
-plt.plot(zeroCrossT, np.zeros(len(zeroCrossT)), 'r+', label = 'zero crossings of x-coordinate of x0') 
-plt.plot(extrT,extrVal,'-v')
-plt.xlim(start-1, hours-start+1) #shows the x from a little bit before the start of timepoints, to a little bit after the end
-plt.ylim(-2.5,4.5)
+#plt.plot(zeroCrossT, np.zeros(len(zeroCrossT)), 'r+', label = 'zero crossings of x-coordinate of x0') 
+#plt.plot(extrT,extrVal,'-v')
+#plt.xlim(start-1, hours-start+1) #shows the x from a little bit before the start of timepoints, to a little bit after the end
+#plt.ylim(-2.5,4.5)
 
 plt.legend()
 plt.show()

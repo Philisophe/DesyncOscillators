@@ -110,8 +110,8 @@ def running_mean(x, N,N2=0):
     
 
 x, anls = odeP(model=model2,numOsc=10,state=[[4,4]]*10,timepoints=t)
-x1, anls1 = odeP(model=model2,numOsc=100,state=[[4,4]]*100,timepoints=t)
-x2, anls1 = odeP(model=model2,numOsc=1000,state=[[4,4]]*1000,timepoints=t)
+#x1, anls1 = odeP(model=model2,numOsc=100,state=[[4,4]]*100,timepoints=t)
+#x2, anls1 = odeP(model=model2,numOsc=1000,state=[[4,4]]*1000,timepoints=t)
 
 
 onlyX = []
@@ -120,11 +120,11 @@ onlyX2=[]
 for i in x:
     onlyX.append(i[:,0])
 
-for i in x1:
-    onlyX1.append(i[:,0])
+#for i in x1:
+#    onlyX1.append(i[:,0])
 
-for i in x2:
-    onlyX2.append(i[:,0])
+#for i in x2:
+#    onlyX2.append(i[:,0])
 
 
 
@@ -133,12 +133,12 @@ plt.figure(figsize=(12,5))
 meanOsc=np.mean(x,axis=0)
 plt.plot(t,meanOsc[:,0], 'o', label = 'mean values of 10 oscillators')
 
-meanOsc1=np.mean(x1,axis=0)
-plt.plot(t,meanOsc1[:,0], 'o', label = 'mean values of 100 oscillators')
+#meanOsc1=np.mean(x1,axis=0)
+#plt.plot(t,meanOsc1[:,0], 'o', label = 'mean values of 100 oscillators')
 
 plt.plot(t,np.var(onlyX,0),'-',label='Variance of 10 oscillators')
-plt.plot(t,np.var(onlyX1,0),'-', label = 'Variance of 100 oscillators')
-plt.plot(t,np.var(onlyX2,0),'-', label = 'Variance of 1000 oscillators')
+#plt.plot(t,np.var(onlyX1,0),'-', label = 'Variance of 100 oscillators')
+#plt.plot(t,np.var(onlyX2,0),'-', label = 'Variance of 1000 oscillators')
 
 plt.legend()
 plt.show()
@@ -202,7 +202,4 @@ plt.plot(t,meanOsc2[:,0], '-', label = 'mean values of 1000 oscillators')
 
 plt.legend()
 plt.show()
-
-
-
 """
