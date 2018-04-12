@@ -150,8 +150,7 @@ Problems with this script:
     2) You need to use the timepoint-variable in plt.plot() function, so no way of defining it inside the odeP() call
     3) You need to always use the correct number of initial states (state[]) and parameters (params=[()]).
 Right now params are set to be the same for all different oscillators.
-To fix it - put the exception inside, so if the len() of params, state[] and numOsc doesn't match - throw an exception
-    4) 
+To fix it - put the exception inside, so if the len() of params, state[] and numOsc doesn't match - throw an exceptioт
 """
 ################################
 
