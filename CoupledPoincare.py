@@ -28,15 +28,15 @@ def model2 (vector,t,alpha, A, omega, twist, K):
     dzdt = [dx1dt, dy1dt,dx2dt,dy2dt]
     return dzdt
 
-t = np.linspace(0,500,1000)
+t = np.linspace(0,100,1000)
 
-params = (0.1,1,(np.pi*2)/24, 0.2, 0.05) #Turn twist up just a bit, and you'll see a very different pic
+params = (0.1,1,(np.pi*2)/24, 0.3, 0.5) #Turn twist up just a bit, and you'll see a very different pic
 state0=[4,4,1,1]
 
 x1 = odeint(model2, state0, t, args = (params))
 plt.figure(figsize=(20,8))
-plt.plot(x1[:,0], label = 'x coord of 1st osc')
-plt.plot(x1[:,2], label = 'x coord of 2nd osc')
+plt.plot(t, x1[:,0], label = 'x coord of 1st osc')
+plt.plot(t, x1[:,2], label = 'x coord of 2nd osc')
 
 
 plt.legend()
