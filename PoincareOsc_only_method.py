@@ -19,7 +19,7 @@ def model2 (vector,t,alpha, A, omega, twist):
     dzdt = [dxdt, dydt]
     return dzdt
 
-t = np.linspace(0,1000,10000)
+t = np.linspace(0,100,150)
 
 # Integrate the finite number of Poincare oscillators using scipy.integrate.odeint and 
 # return the container with integration points, which can be then plotted.
@@ -75,6 +75,7 @@ def odeP (model=model2, numOsc=1, state=[[1,1]], timepoints=np.linspace(0,100,10
                 maxs.append(k)
         
         fold = []
+        
         """
         #  For some reason doesn't work correctly if twist is non-0
         if mins and maxs:  # If lists (mins and maxs) aren't empty, then
@@ -91,8 +92,8 @@ def odeP (model=model2, numOsc=1, state=[[1,1]], timepoints=np.linspace(0,100,10
         analysisOfSolutions[i]['mins'] = mins
         analysisOfSolutions[i]['maxs'] = maxs
         analysisOfSolutions[i]['fold'] = fold
-
-    
+        analysisOfSolutions[i]['phases'] =  analysisOfSolutions[i]['extrT'] + analysisOfSolutions[i]['zeroCrossT'].tolist()
+        analysisOfSolutions[i]['phases'].sort()
     return solutions, analysisOfSolutions
 
 #Running average
@@ -130,8 +131,8 @@ for i in x:
 
 plt.figure(figsize=(12,5))
 
-meanOsc=np.mean(x,axis=0)
-plt.plot(t,meanOsc[:,0], 'o', label = 'mean values of 10 oscillators')
+#meanOsc=np.mean(x,axis=0)
+#plt.plot(t,meanOsc[:,0], 'o', label = 'mean values of 10 oscillators')
 
 #meanOsc1=np.mean(x1,axis=0)
 #plt.plot(t,meanOsc1[:,0], 'o', label = 'mean values of 100 oscillators')

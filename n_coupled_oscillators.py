@@ -54,7 +54,8 @@ def oscillator_system(state_vector, t, alpha, A, omega, twist, K):
 
 
 
-t = np.linspace(0, 1000, 1500)
+t = np.linspace(0, 1000, 1000)
+
 
 # PARAMETERS
 # Every parameter is set by a list, where 0-th element (e.g., omega[0]) represent 
@@ -64,7 +65,7 @@ t = np.linspace(0, 1000, 1500)
 # Period of different oscillator varies +-1 SND (standart normal distribution) from 24h.
 # Omega is derived as (2pi/24+-1SND) 
 omeg = [(np.pi*2)/(24+i) for i in np.random.randn(10)]
-params = ([0.1]*10,[1]*10,omeg,[0.1]*10,[0.05]*10)
+params = ([0.1]*10,[1]*10,omeg,[0.1]*10,[0.01]*10)
 state0 = [1,1]*10
 
 # Solving ODEs
@@ -72,14 +73,91 @@ x1 = odeint(oscillator_system, state0, t, args = (params))
 
 n = int(len(state0) / 2)
 
+
+
+#################################
+# 18 APRIL WORK #
+# ANALYSIS OF PHASES
+#################################
+
+    
+def analysis (solutions):
+    zeroCrossInd = []
+    zeroCrossVal = []
+    zeroCrossT = []
+    period = []
+    extrVal = [[] for _ in range(n)] # Let's create n different empty lists
+    extrT = [[] for _ in range(n)]
+    phases=[]
+    
+    for i in range(n):
+        zeroCrossInd.append(np.where(np.diff(np.sign(solutions[:,i*2])))[0])
+        # Going through only even columns of solutions array (which contain the x-coordinates)
+        # The crossing happens between indices in zeroCrossInd and next one. E.g., zeroCrossInd[0][0] (the 0th index for the 1st oscillator) is 5, meaning that 0 is somewhere between 5th and 6th timepoint.
+                
+        # the values themselves, should be really close to 0
+        zeroCrossVal.append((solutions[:,i*2][zeroCrossInd[i]] + solutions[:,i*2][zeroCrossInd[i]+1])/2)
+        
+        
+        #the approximate times of actual crossings
+        zeroCrossT.append( (t[zeroCrossInd[i]]+t[zeroCrossInd[i]+1])/2 ) # takes the time in between two x-values of opposing signs
+        
+        period.append( np.diff(zeroCrossT[i]) )
+        
+        # Looking for local maxima, minima
+        # When result of np.diff() changes the sign - it's when the max of min occured 
+        # diff changes it's meaning after every iteration
+        diff = np.diff(np.sign(np.diff(solutions[:,i*2])))
+        for j in range(len(diff)):
+            if diff[j]!=0:
+                extrVal[i].append( (np.mean(solutions[:,i*2][j:j+2])) )
+                extrT[i].append( (np.mean(t[j:j+2])) )
+        
+        # Phases are just all the time-points of zero-crossings, minima and maxima
+        phases.append(zeroCrossT[i].tolist()+extrT[i]) 
+        phases[i].sort()
+    
+    return { "zeroCrossInd":zeroCrossInd, "zeroCrossVal":zeroCrossVal, 
+            "zeroCrossT":zeroCrossT, "period":period, 
+            "extrVal":extrVal, "extrT":extrT, "phases":phases}
+    
+
+
+als = analysis(x1)
+ph = als['phases']
+minlen = min([len(i) for i in ph])
+minph = [i[0:minlen-1] for i in ph]
+
+
 # Plotting x-coordinates of oscillators, mean and variance
 plt.figure(figsize=(20,8))
 for i in range(n):
-    plt.plot(x1[:, 2*i], label = 'x coord of {}st osc'.format(i))
-plt.plot(np.mean(x1, axis=1), 'o', label = 'mean')
+    plt.plot(t,x1[:, 2*i], 'o', label = 'x coord of {}st osc'.format(i))
+plt.plot(t,np.mean(x1, axis=1), '+', label = 'mean') # WRONG MEAN, takes into account also y-coordinate
+#plt.plot(anls[])
 #plt.plot(np.var(x1, axis=1), 'o', label = 'variance of coordinate')
 
 plt.ylim(-2,5)
 plt.legend()
 plt.show()
+
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
