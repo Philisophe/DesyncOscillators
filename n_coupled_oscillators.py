@@ -3,6 +3,7 @@
 
 
 from scipy.integrate import odeint
+from scipy.signal import hilbert
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -54,33 +55,6 @@ def oscillator_system(state_vector, t, alpha, A, omega, twist, K):
 
 
 
-t = np.linspace(0, 1000, 1000)
-
-
-# PARAMETERS
-# Every parameter is set by a list, where 0-th element (e.g., omega[0]) represent 
-# the value of the parameter for the 0-th oscillator. 
-# If the values across the oscillators are the same, you may just put [value]*number_of_oscillators
-
-# Period of different oscillator varies +-1 SND (standart normal distribution) from 24h.
-# Omega is derived as (2pi/24+-1SND) 
-omeg = [(np.pi*2)/(24+i) for i in np.random.randn(10)]
-params = ([0.1]*10,[1]*10,omeg,[0.1]*10,[0.01]*10)
-state0 = [1,1]*10
-
-# Solving ODEs
-x1 = odeint(oscillator_system, state0, t, args = (params))
-
-n = int(len(state0) / 2)
-
-
-
-#################################
-# 18 APRIL WORK #
-# ANALYSIS OF PHASES
-#################################
-
-    
 def analysis (solutions):
     zeroCrossInd = []
     zeroCrossVal = []
@@ -120,26 +94,209 @@ def analysis (solutions):
     return { "zeroCrossInd":zeroCrossInd, "zeroCrossVal":zeroCrossVal, 
             "zeroCrossT":zeroCrossT, "period":period, 
             "extrVal":extrVal, "extrT":extrT, "phases":phases}
-    
 
 
+#Running average
+# x - data, N - window size, N2 - number of runs (if N2=0 - 1 run, if N2=1 - 2 runs etc.)
+def running_mean(x, N,N2=0):
+    if N2==0:
+        cumsum = np.cumsum(np.insert(x, 0, 0)) 
+        return (cumsum[N:] - cumsum[:-N]) / float(N)
+    else:
+        cumsum = np.cumsum(np.insert(x, 0, 0)) 
+        return running_mean(((cumsum[N:] - cumsum[:-N]) / float(N)),N,N2-1)
+
+def cart2pol(x, y):
+    theta = np.rad2deg(np.arctan2(y, x)) # ix1pol = [cart2pol(x1[:,i*2],x1[:,i*2 +1]) for i in range(n)]n degrees
+    rho = np.hypot(x, y)
+    return [theta, rho]
+
+
+"""
+###################################################################################################################################
+HERE THE CODE THAT DEFINES THE NECESSARY FUNCTIONS STOPPS
+THE REAL SCIENCE STARTS HERE
+###################################################################################################################################
+"""
+
+# PARAMETERS
+# Every parameter is set by a list, where 0-th element (e.g., omega[0]) represent 
+# the value of the parameter for the 0-th oscillator. 
+# If the values across the oscillators are the same, you may just put [value]*number_of_oscillators
+
+# Period of different oscillator varies +-1 SND (standart normal distribution) from 24h.
+# Omega is derived as (2pi/24+-1SND) 
+
+
+
+
+n=2 # Number of oscillators
+t = np.linspace(0, 600, 600)
+state0 = [2,2]*n # Initial conditions
+
+omeg = [(np.pi*2)/(24+i) for i in np.random.randn(n)]
+params = ([0.1]*n,[1]*n,omeg,[0.1]*n,[0.01]*n) # alpha (amplitude-relaxation rate), amplitude, omega (angular speed), twist, K (coupling strength)
+
+# Solving ODEs
+x1 = odeint(oscillator_system, state0, t, args = (params))
+x1x=[x1[:,i*2] for i in range(n)] # Only x-coordinate
+x1y = [x1[:,(i*2)+1] for i in range(n)] # Only y-coordinate
+
+x1pol = [cart2pol(x1[:,i*2],x1[:,i*2 +1]) for i in range(n)] # Same as x1 but in polar coordinates; changes shape of the array
+for i in range(n):
+    x1pol[i][0] = abs(x1pol[i][0]) # Taking only the absolute values of phases (to avoid jumps from 179 to -179)
+
+####
+var = np.var([x1pol[0][0],x1pol[1][0]],axis=0)
+
+# Getting the envelope of the variance
+extrVal=[]
+extrT=[]
+diff = np.diff(np.sign(np.diff(var)))
+for j in range(len(diff)):
+    if diff[j]!=0:
+        extrVal.append( (np.mean(var[j:j+2])) )
+        extrT.append( (np.mean(t[j:j+2])) )
+# Taking only the positive part of the envelope
+extrVal2 = [extrVal[i*2] for i in range(int(len(extrVal)/2))]
+extrT2 = [extrT[i*2] for i in range(int(len(extrVal)/2))]
+
+####
+
+x1a = hilbert(x1)
+# ???? For some reason hilbert(x1)[:,0] gives different result as hilbert(x1[:,0])
+
+
+
+
+# Analysis of ODEs
 als = analysis(x1)
-ph = als['phases']
-minlen = min([len(i) for i in ph])
-minph = [i[0:minlen-1] for i in ph]
+
 
 
 # Plotting x-coordinates of oscillators, mean and variance
 plt.figure(figsize=(20,8))
 for i in range(n):
     plt.plot(t,x1[:, 2*i], 'o', label = 'x coord of {}st osc'.format(i))
-plt.plot(t,np.mean(x1, axis=1), '+', label = 'mean') # WRONG MEAN, takes into account also y-coordinate
-#plt.plot(anls[])
-#plt.plot(np.var(x1, axis=1), 'o', label = 'variance of coordinate')
+plt.plot(t,np.mean(x1x, axis=0), '-', label = 'mean')
 
 plt.ylim(-2,5)
 plt.legend()
 plt.show()
+
+
+
+
+extrVal=[]
+extrT=[]
+diff = np.diff(np.sign(np.diff(var)))
+for j in range(len(diff)):
+    if diff[j]!=0:
+        extrVal.append( (np.mean(var[j:j+2])) )
+        extrT.append( (np.mean(t[j:j+2])) )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+# One attempt to define phase using extrema and 0-crossings
+ph = als['phases']
+zc = als['zeroCrossT']
+ext = als['extrT']
+
+minlen = min([len(i) for i in ph])
+minph = [i[0:minlen-1] for i in ph]
+"""
+
+
+
+"""
+# One attempt to define number of oscillators
+n = int(len(state0) / 2) # Number of oscillators
+"""
+
+
+
+
+"""
+# Generating graph1
+mean vs. time for 100 oscillators with different sigmas
+NO TWIST
+NO COUPLING
+
+n = 100 # Number of oscillators
+t = np.linspace(0, 500, 5000)
+state0 = [2,2]*n
+
+x1 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
+x2 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
+x3 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
+x4 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
+
+x1x=[x1[:,i*2] for i in range(n)] # Only x-coordinate
+x2x=[x2[:,i*2] for i in range(n)] # Only x-coordinate
+x3x=[x3[:,i*2] for i in range(n)] # Only x-coordinate
+x4x=[x4[:,i*2] for i in range(n)] # Only x-coordinate
+
+plt.figure(figsize=(20,8))
+
+plt.plot (t, np.mean(x1x,axis=0), label = 'sigma=0.5')
+plt.plot (t, np.mean(x2x,axis=0), label = 'sigma=1')
+plt.plot (t, np.mean(x3x,axis=0), label = 'sigma=1.5')
+plt.plot (t, np.mean(x4x,axis=0), label = 'sigma=2')
+plt.ylabel ('Mean of x-coordinate of 100 oscillators')
+plt.xlabel ('time, hours')
+plt.ylim(-1.5,2.5)
+plt.legend()
+plt.show()
+"""
+
+
+"""
+# Generating graph2
+var(x-coordinate) vs. time for 100 oscillators with different sigmas
+NO TWIST
+NO COUPLING
+
+n = 100 # Number of oscillators
+t = np.linspace(0, 500, 5000)
+state0 = [2,2]*n
+
+params = ([0.1]*n,[1]*n,omeg,[0.0]*n,[0.0]*n)
+x1 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
+x2 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
+x3 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
+x4 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
+
+x1x=[x1[:,i*2] for i in range(n)] # Only x-coordinate
+x2x=[x2[:,i*2] for i in range(n)] # Only x-coordinate
+x3x=[x3[:,i*2] for i in range(n)] # Only x-coordinate
+x4x=[x4[:,i*2] for i in range(n)] # Only x-coordinate
+
+plt.figure(figsize=(20,8))
+
+plt.plot (t, np.mean(x1x,axis=0), label = 'sigma=0.5')
+plt.plot (t, np.mean(x2x,axis=0), label = 'sigma=1')
+plt.plot (t, np.mean(x3x,axis=0), label = 'sigma=1.5')
+plt.plot (t, np.mean(x4x,axis=0), label = 'sigma=2')
+
+plt.ylabel ('Variance of x-coordinate of 100 oscillators')
+plt.xlabel ('time, hours')
+
+plt.ylim(-1.5,2.5)
+plt.legend()
+plt.show()
+"""
 
 
     
