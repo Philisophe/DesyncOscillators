@@ -3,7 +3,6 @@
 
 
 from scipy.integrate import odeint
-from scipy.signal import hilbert
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -111,6 +110,40 @@ def cart2pol(x, y):
     rho = np.hypot(x, y)
     return [theta, rho]
 
+# Separates x- and y- coordinates
+# int(np.shape(solution)[1]/2)) is the same as n
+def sep(solution):
+    solution_x = [solution[:,i*2] for i in range(int(np.shape(solution)[1]/2))]
+    solution_y = [solution[:,i*2+1] for i in range(int(np.shape(solution)[1]/2))]
+    return [solution_x,solution_y]
+
+# Translate the result of odeint() function into the polar coordinates 
+# and returns only the positive values
+def sol2pol(solution):
+    solution_pol = [cart2pol(solution[:,i*2],solution[:,i*2+1]) for i in range(int(np.shape(solution)[1]/2))]
+    for j in range(int(np.shape(solution)[1]/2)):
+        solution_pol[j][0] = abs(solution_pol[j][0]) # Only positive values for phases
+    return solution_pol
+
+
+# Phase (theta) variance
+# Returns phase variance and the upper envelope of it
+# Looks ugly, but that's OK; relies on 't'
+def phvar(solution):
+    sol_pol = sol2pol(solution)
+    thetas = [sol_pol[i][0] for i in range(int(np.shape(solution)[1]/2))]
+    var = np.var(thetas, axis=0)
+    extrVal=[]
+    extrT=[]
+    diff = np.diff(np.sign(np.diff(var)))
+    for j in range(len(diff)):
+        if diff[j]!=0:
+            extrVal.append( (np.mean(var[j:j+2])) )
+            extrT.append( (np.mean(t[j:j+2])) )
+    # Taking only the positive part of the envelope
+    extrVal2 = [extrVal[i*2] for i in range(int(len(extrVal)/2))]
+    extrT2 = [extrT[i*2] for i in range(int(len(extrVal)/2))]
+    return var,[extrT2,extrVal2]
 
 """
 ###################################################################################################################################
@@ -118,7 +151,6 @@ HERE THE CODE THAT DEFINES THE NECESSARY FUNCTIONS STOPPS
 THE REAL SCIENCE STARTS HERE
 ###################################################################################################################################
 """
-
 # PARAMETERS
 # Every parameter is set by a list, where 0-th element (e.g., omega[0]) represent 
 # the value of the parameter for the 0-th oscillator. 
@@ -126,51 +158,22 @@ THE REAL SCIENCE STARTS HERE
 
 # Period of different oscillator varies +-1 SND (standart normal distribution) from 24h.
 # Omega is derived as (2pi/24+-1SND) 
-
-
+"""
+###################################################################################################################
+"""
 
 
 n=2 # Number of oscillators
-t = np.linspace(0, 600, 600)
+t = np.linspace(0, 600, 6000)
 state0 = [2,2]*n # Initial conditions
+
 
 omeg = [(np.pi*2)/(24+i) for i in np.random.randn(n)]
 params = ([0.1]*n,[1]*n,omeg,[0.1]*n,[0.01]*n) # alpha (amplitude-relaxation rate), amplitude, omega (angular speed), twist, K (coupling strength)
 
+
 # Solving ODEs
 x1 = odeint(oscillator_system, state0, t, args = (params))
-x1x=[x1[:,i*2] for i in range(n)] # Only x-coordinate
-x1y = [x1[:,(i*2)+1] for i in range(n)] # Only y-coordinate
-
-x1pol = [cart2pol(x1[:,i*2],x1[:,i*2 +1]) for i in range(n)] # Same as x1 but in polar coordinates; changes shape of the array
-for i in range(n):
-    x1pol[i][0] = abs(x1pol[i][0]) # Taking only the absolute values of phases (to avoid jumps from 179 to -179)
-
-####
-var = np.var([x1pol[0][0],x1pol[1][0]],axis=0)
-
-# Getting the envelope of the variance
-extrVal=[]
-extrT=[]
-diff = np.diff(np.sign(np.diff(var)))
-for j in range(len(diff)):
-    if diff[j]!=0:
-        extrVal.append( (np.mean(var[j:j+2])) )
-        extrT.append( (np.mean(t[j:j+2])) )
-# Taking only the positive part of the envelope
-extrVal2 = [extrVal[i*2] for i in range(int(len(extrVal)/2))]
-extrT2 = [extrT[i*2] for i in range(int(len(extrVal)/2))]
-
-####
-
-x1a = hilbert(x1)
-# ???? For some reason hilbert(x1)[:,0] gives different result as hilbert(x1[:,0])
-
-
-
-
-# Analysis of ODEs
-als = analysis(x1)
 
 
 
@@ -178,7 +181,7 @@ als = analysis(x1)
 plt.figure(figsize=(20,8))
 for i in range(n):
     plt.plot(t,x1[:, 2*i], 'o', label = 'x coord of {}st osc'.format(i))
-plt.plot(t,np.mean(x1x, axis=0), '-', label = 'mean')
+plt.plot(t,np.mean(sep(), axis=0), '-', label = 'mean')
 
 plt.ylim(-2,5)
 plt.legend()
@@ -187,24 +190,43 @@ plt.show()
 
 
 
+
+
+
+
+
+
+
+"""
+# Certain stuff to analyze
+x1x=[x1[:,i*2] for i in range(n)] # Only x-coordinate
+x1y = [x1[:,(i*2)+1] for i in range(n)] # Only y-coordinate
+
+# Cartesian-to-polar conversion
+x1pol = [cart2pol(x1[:,i*2],x1[:,i*2 +1]) for i in range(n)] # Same as x1 but in polar coordinates; changes shape of the array
+for i in range(n):
+    x1pol[i][0] = abs(x1pol[i][0]) # Taking only the absolute values of phases (to avoid jumps from 179 to -179)
+
+# Taking variance of phases (theta's)
+thetas1 = [x1pol[i][0] for i in range(n)] # Extract only thetas
+var1 = np.var(thetas1, axis=0)
+
+# Getting the envelope of the variance
 extrVal=[]
 extrT=[]
-diff = np.diff(np.sign(np.diff(var)))
+diff = np.diff(np.sign(np.diff(var1)))
 for j in range(len(diff)):
     if diff[j]!=0:
-        extrVal.append( (np.mean(var[j:j+2])) )
+        extrVal.append( (np.mean(var1[j:j+2])) )
         extrT.append( (np.mean(t[j:j+2])) )
+# Taking only the positive part of the envelope
+extrVal2 = [extrVal[i*2] for i in range(int(len(extrVal)/2))]
+extrT2 = [extrT[i*2] for i in range(int(len(extrVal)/2))]
 
 
-
-
-
-
-
-
-
-
-
+# Analysis of ODEs
+als = analysis(x1)
+"""
 
 
 
