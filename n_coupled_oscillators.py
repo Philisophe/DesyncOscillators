@@ -4,6 +4,7 @@
 
 from scipy.integrate import odeint
 from scipy.signal import hilbert
+from scipy.optimize import curve_fit
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -176,6 +177,7 @@ def phvar(solution):
     return var,[extrT2,extrVal2]
 
 
+
 # Calculates envelope
 def env(x):
     return np.abs(hilbert(x))
@@ -186,6 +188,15 @@ def lin(x, a, b):
 
 def quad(x, a, b, c):
     return (a*(x**2) + b*x + c)
+
+def cub(x,a,b,c,d):
+    return (a*(x**3) + b*(x**2) + c*x + d)
+
+def expon(x, a, b, c):
+    return a * np.exp(-b * x) + c
+
+
+
 
 """
 ###################################################################################################################################
@@ -203,6 +214,11 @@ THE REAL SCIENCE STARTS HERE
 """
 ###################################################################################################################
 """
+
+
+
+
+
 
 
 n=2 # Number of oscillators
@@ -301,14 +317,14 @@ n = int(len(state0) / 2) # Number of oscillators
 
 # ONE NUMBER OF OSCILLATORS; MANY SIGMAS
 
-###########
+########################################
 MEAN(x-coordinate)
-############
+#######################################
 
 #NO TWIST
 #NO COUPLING
 
-n = 10 # Number of oscillators
+n = 1000 # Number of oscillators
 t = np.linspace(0, 500, 5000)
 state0 = [2,2]*n
 
@@ -329,15 +345,97 @@ plt.plot (t, np.mean(x2x,axis=0), label = 'sigma=1')
 plt.plot (t, np.mean(x3x,axis=0), label = 'sigma=1.5')
 plt.plot (t, np.mean(x4x,axis=0), label = 'sigma=2')
 
-plt.ylabel ('Mean of x-coordinate of 10 oscillators')
+plt.ylabel ('Mean of x-coordinate of 1000 oscillators')
 plt.xlabel ('time, hours')
 plt.ylim(-1.5,2.5)
 plt.legend()
 plt.show()
 
-############ OR
-VAR (x-coordinate)
+
+
+############
+# Testing me() function
+plt.plot(t,np.mean(x1x,axis=0), '--', label="mean")
+plt.plot(extr(np.mean(x1x,axis=0))[0],extr(np.mean(x1x,axis=0))[1],'o', label="extrema")
+plt.plot(me(np.mean(x1x,axis=0))[0], me(np.mean(x1x,axis=0))[1], "+", label="maxima")
+plt.legend()
+
+############
+ ONLY MAXIMA FROM MEAN(X)
 ###########
+
+plt.plot(t,np.mean(x1x,axis=0), label="sigma 0.5")
+plt.plot(t,np.mean(x2x,axis=0), label="sigma 1.0")
+plt.plot(t,np.mean(x3x,axis=0), label="sigma 1.5")
+plt.plot(t,np.mean(x4x,axis=0), label="sigma 2.0")
+
+plt.plot(me(np.mean(x1x,axis=0))[0], me(np.mean(x1x,axis=0))[1], label="maxima sigma 0.5")
+plt.plot(me(np.mean(x2x,axis=0))[0], me(np.mean(x2x,axis=0))[1], label="maxima sigma 1.0")
+plt.plot(me(np.mean(x3x,axis=0))[0], me(np.mean(x3x,axis=0))[1], "+", label="maxima sigma 1.5")
+plt.plot(me(np.mean(x4x,axis=0))[0], me(np.mean(x4x,axis=0))[1], "+", label="maxima sigma 2.0")
+
+plt.legend()
+
+#############
+FITTING TO THE LINEAR
+##############
+
+xdata1 = np.array(me(np.mean(x1x, axis=0))[0])
+ydata1 = np.array(me(np.mean(x1x, axis=0))[1])
+
+xdata2 = np.array(me(np.mean(x2x, axis=0))[0])
+ydata2 = np.array(me(np.mean(x2x, axis=0))[1])
+
+xdata3 = np.array(me(np.mean(x3x, axis=0))[0])
+ydata3 = np.array(me(np.mean(x3x, axis=0))[1])
+
+xdata4 = np.array(me(np.mean(x4x, axis=0))[0])
+ydata4 = np.array(me(np.mean(x4x, axis=0))[1])
+#xydata = [xdata1,ydata1,xdata2,ydata2,xdata3,ydata3,xdata4,ydata4]  
+  
+
+popt1,pcov1 = curve_fit(lin,xdata1,ydata1)
+popt2,pcov2 = curve_fit(lin,xdata2[0:5],ydata2[0:5])
+popt3,pcov3 = curve_fit(lin,xdata3[0:5],ydata3[0:5])
+popt4,pcov4 = curve_fit(lin,xdata4[0:5],ydata4[0:5])
+
+
+plt.figure(figsize=(10,6))
+plt.plot(xdata1,ydata1, 'ro', label = 's=0.5 maxima')
+plt.plot(xdata1, lin(xdata1, *popt1), 'r--', label = 's=0.5 fit')
+
+plt.plot(xdata2,ydata2, 'mo', label = 's=1.0 maxima')
+plt.plot(xdata2, lin(xdata2, *popt2), 'm--', label = 's=1.0 fit')
+
+plt.plot(xdata3,ydata3, 'bo', label = 's=1.5 maxima')
+plt.plot(xdata3, lin(xdata3, *popt3),'b--', label = 's=1.5 fit')
+
+plt.plot(xdata4,ydata4, 'ko', label = 's=2.0 maxima')
+plt.plot(xdata4, lin(xdata4, *popt4), 'k--', label = 's=2.0 fit')
+
+plt.ylabel ('Maxima of mean(x-coordinate) of 1000 oscillators fitted to line')
+plt.xlabel ('time, hours')
+
+plt.xlim(20,250)
+plt.ylim(-1.7,1.3)
+plt.legend()
+
+
+####
+Practicing with POLYNOMIALS
+
+data3poly2 = np.polyfit(xdata3,ydata3,2) # Fitting data3 to polynomial of the 2nd degree
+#Using poly1d(coefficients)(x-values) you can get y-values
+plt.plot(t,np.poly1d(data3poly2)(t), label='deg 2 fit for data3')
+plt.plot(xdata3,ydata3, label = 'data 3')
+plt.legend()
+
+####
+
+
+####################################### OR
+VAR (x-coordinate)
+#######################################
 
 plt.figure(figsize=(20,8))
 
@@ -346,16 +444,134 @@ plt.plot (t, np.var(x2x,axis=0), label = 'sigma=1')
 plt.plot (t, np.var(x3x,axis=0), label = 'sigma=1.5')
 plt.plot (t, np.var(x4x,axis=0), label = 'sigma=2')
 
-plt.ylabel ('Variance of x-coordinate of 10 oscillators')
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators')
 plt.xlabel ('time, hours')
 
 plt.ylim(-1.5,2.5)
 plt.legend()
 plt.show()
 
-############ OR
+
+
+############## OR 
+running_mean(VAR (x-coordinate))
+##############
+
+plt.figure(figsize=(20,8))
+
+plt.plot (t[:3487], run_mean(np.var(x1x,axis=0),72,2), label = 'sigma=0.5')
+plt.plot (t[:3487], run_mean(np.var(x2x,axis=0),72,2), label = 'sigma=1')
+plt.plot (t[:3487], run_mean(np.var(x3x,axis=0),72,2), label = 'sigma=1.5')
+plt.plot (t[:3487], run_mean(np.var(x4x,axis=0),72,2), label = 'sigma=2')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (72,3)')
+plt.xlabel ('time, hours')
+
+plt.ylim(-1.5,2.5)
+plt.legend()
+plt.show()
+
+############
+plt.figure(figsize=(20,8))
+
+plt.plot (t[:3416], run_mean(np.var(x1x,axis=0),72,3), label = 'sigma=0.5')
+plt.plot (t[:3416], run_mean(np.var(x2x,axis=0),72,3), label = 'sigma=1')
+plt.plot (t[:3416], run_mean(np.var(x3x,axis=0),72,3), label = 'sigma=1.5')
+plt.plot (t[:3416], run_mean(np.var(x4x,axis=0),72,3), label = 'sigma=2')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (72,4)')
+plt.xlabel ('time, hours')
+
+plt.legend()
+plt.show()
+
+
+#############
+FITTING TO THE EXPONENTIAL / PLOTTING IN LOG()
+##############
+#### Plotting in log-scale
+plt.plot (t[:3416], run_mean(np.var(x1x,axis=0),72,3), label = 'sigma=0.5')
+plt.plot (t[:3416], run_mean(np.var(x2x,axis=0),72,3), label = 'sigma=1')
+plt.plot (t[:3416], run_mean(np.var(x3x,axis=0),72,3), label = 'sigma=1.5')
+plt.plot (t[:3416], run_mean(np.var(x4x,axis=0),72,3), label = 'sigma=2')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (72,4)')
+plt.xlabel ('time, hours')
+plt.yscale('log')
+plt.legend()
+plt.show()
+
+
+###### Fitting to quadratic
+
+xdata=t[:3416]
+ydata1=run_mean(np.var(x1x,axis=0),72,3)
+ydata2=run_mean(np.var(x2x,axis=0),72,3)
+ydata3=run_mean(np.var(x3x,axis=0),72,3)
+ydata4=run_mean(np.var(x4x,axis=0),72,3)
+
+popt1,pcov1 = curve_fit(quad,xdata,ydata1)
+popt2,pcov2 = curve_fit(quad,xdata,ydata2)
+popt3,pcov3 = curve_fit(quad,xdata,ydata3)
+popt4,pcov4 = curve_fit(quad,xdata,ydata4)
+
+
+
+
+plt.figure(figsize=(20,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
+plt.plot(xdata,quad(xdata,*popt1),'r-', label = 'fit')
+
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,quad(xdata,*popt2),'m-', label = 'fit')
+
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,quad(xdata,*popt3),'b-', label = 'fit')
+
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,quad(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (72,4) fitted to quadratic function')
+plt.xlabel ('time, hours')
+#plt.yscale('log')
+plt.legend()
+plt.show()
+
+
+###### Fitting to the exponential
+
+popt1,pcov1 = curve_fit(expon,xdata,ydata1)
+popt2,pcov2 = curve_fit(expon,xdata,ydata2)
+popt3,pcov3 = curve_fit(expon,xdata,ydata3)
+popt4,pcov4 = curve_fit(expon,xdata,ydata4)
+
+plt.figure(figsize=(12,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
+plt.plot(xdata,expon(xdata,*popt1),'r-', label = 'fit')
+
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,expon(xdata,*popt2),'m-', label = 'fit')
+
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,expon(xdata,*popt3),'b-', label = 'fit')
+
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,expon(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (72,4) fitted to exponential function')
+plt.xlabel ('time, hours')
+#plt.yscale('log')
+plt.xlim(-5,150)
+plt.legend()
+plt.show()
+
+
+
+############################################### OR
 VAR (phase)
-##########
+##############################################
 
 plt.figure(figsize=(20,8))
 plt.plot (t, phvar(x1)[0], label = 'sigma=0.5')
@@ -363,7 +579,7 @@ plt.plot (t, phvar(x2)[0], label = 'sigma=1')
 plt.plot (t, phvar(x3)[0], label = 'sigma=1.5')
 plt.plot (t, phvar(x4)[0], label = 'sigma=2')
 
-plt.ylabel ('Variance of phase of 10 oscillators')
+plt.ylabel ('Variance of phase of 1000 oscillators')
 plt.xlabel ('time, hours')
 
 plt.legend()
@@ -371,15 +587,32 @@ plt.show()
 
 ################# OR
 running_mean(var(phase))
-#################
-runph=[]
-for i in [x1,x2,x3]:
-    runph.append(running_mean(phvar(i)[0],72,2))
+##################
+plt.figure(figsize=(20,8))
+plt.plot (t[:3487], run_mean(phvar(x1)[0],72,2), label = 'sigma=0.5')
+plt.plot (t[:3487], run_mean(phvar(x2)[0],72,2), label = 'sigma=1')
+plt.plot (t[:3487], run_mean(phvar(x3)[0],72,2), label = 'sigma=1.5')
+plt.plot (t[:3487], run_mean(phvar(x4)[0],72,2), label = 'sigma=2')
 
-plt.plot (t[0:4787], runph[0], label = '10 oscillators')
-plt.plot (t[0:4787], runph[1], label = '100 oscillators')
-plt.plot (t[0:4787], runph[2], label = '1000 oscillators')
+plt.ylabel ('Variance of phase of 1000 oscillators with running average (72,3)')
+plt.xlabel ('time, hours')
 
+plt.legend()
+plt.show()
+
+###########
+plt.figure(figsize=(20,8))
+plt.plot (t[:3416], run_mean(phvar(x1)[0],72,3), label = 'sigma=0.5')
+plt.plot (t[:3416], run_mean(phvar(x2)[0],72,3), label = 'sigma=1')
+plt.plot (t[:3416], run_mean(phvar(x3)[0],72,3), label = 'sigma=1.5')
+plt.plot (t[:3416], run_mean(phvar(x4)[0],72,3), label = 'sigma=2')
+
+plt.ylabel ('Variance of phase of 1000 oscillators with running average (72,4)')
+plt.xlabel ('time, hours')
+
+plt.legend()
+plt.show()
+#############################################
 """
 
     
