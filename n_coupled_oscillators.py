@@ -433,9 +433,9 @@ plt.legend()
 ####
 
 
-####################################### OR
+############################################### OR
 VAR (x-coordinate)
-#######################################
+################################################
 
 plt.figure(figsize=(20,8))
 
@@ -487,7 +487,7 @@ plt.show()
 
 
 #############
-FITTING TO THE EXPONENTIAL / PLOTTING IN LOG()
+FITTING TO THE DIFFERENT FUNCTIONS / PLOTTING IN LOG()
 ##############
 #### Plotting in log-scale
 plt.plot (t[:3416], run_mean(np.var(x1x,axis=0),72,3), label = 'sigma=0.5')
@@ -609,9 +609,115 @@ plt.plot (t[:3416], run_mean(phvar(x4)[0],72,3), label = 'sigma=2')
 
 plt.ylabel ('Variance of phase of 1000 oscillators with running average (72,4)')
 plt.xlabel ('time, hours')
+#plt.yscale('log')
+#plt.xscale('log')
 
 plt.legend()
 plt.show()
+
+###########
+FITTING TO:
+###########
+LINEAR FUNCTION
+
+xdata=t[:3416]
+ydata1=run_mean(phvar(x1)[0],72,3)
+ydata2=run_mean(phvar(x2)[0],72,3)
+ydata3=run_mean(phvar(x3)[0],72,3)
+ydata4=run_mean(phvar(x4)[0],72,3)
+
+popt1,pcov1 = curve_fit(lin,xdata,ydata1)
+popt2,pcov2 = curve_fit(lin,xdata,ydata2)
+popt3,pcov3 = curve_fit(lin,xdata,ydata3)
+popt4,pcov4 = curve_fit(lin,xdata,ydata4)
+
+
+plt.figure(figsize=(16,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
+plt.plot(xdata,lin(xdata,*popt1),'r-', label = 'fit')
+
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,lin(xdata,*popt2),'m-', label = 'fit')
+
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,lin(xdata,*popt3),'b-', label = 'fit')
+
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,lin(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of phase of 1000 oscillators with running average (72,4) fitted to linear function')
+plt.xlabel ('time, hours')
+#plt.yscale('log')
+#plt.xscale('log')
+
+plt.legend()
+plt.show()
+
+###################
+QUADRATIC
+
+popt1,pcov1 = curve_fit(quad,xdata,ydata1)
+popt2,pcov2 = curve_fit(quad,xdata,ydata2)
+popt3,pcov3 = curve_fit(quad,xdata,ydata3)
+popt4,pcov4 = curve_fit(quad,xdata,ydata4)
+
+
+plt.figure(figsize=(16,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
+plt.plot(xdata,quad(xdata,*popt1),'r-', label = 'fit')
+
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,quad(xdata,*popt2),'m-', label = 'fit')
+
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,quad(xdata,*popt3),'b-', label = 'fit')
+
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,quad(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of phase of 1000 oscillators with running average (72,4) fitted to quadratic function')
+plt.xlabel ('time, hours')
+#plt.yscale('log')
+#plt.xscale('log')
+
+plt.legend()
+plt.show()
+
+############
+EXPONENTIAL
+
+DOESN'T WORK -RuntimeError - overflow
+
+popt1,pcov1 = curve_fit(expon,xdata,ydata1)
+popt2,pcov2 = curve_fit(expon,xdata,ydata2)
+popt3,pcov3 = curve_fit(expon,xdata,ydata3)
+popt4,pcov4 = curve_fit(expon,xdata,ydata4)
+
+
+plt.figure(figsize=(16,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
+plt.plot(xdata,expon(xdata,*popt1),'r-', label = 'fit')
+
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,expon(xdata,*popt2),'m-', label = 'fit')
+
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,expon(xdata,*popt3),'b-', label = 'fit')
+
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,expon(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of phase of 1000 oscillators with running average (72,4) fitted to exponential function')
+plt.xlabel ('time, hours')
+#plt.yscale('log')
+#plt.xscale('log')
+
+plt.legend()
+plt.show()
+#############################################
 #############################################
 """
 
