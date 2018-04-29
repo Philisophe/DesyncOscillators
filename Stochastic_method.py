@@ -19,10 +19,10 @@ def model2 (vector,t,alpha, A, omega, twist):
     dzdt = [dxdt, dydt]
     return dzdt
 
-t = np.linspace(0,0.5,10)
+t2 = np.linspace(0,0.5,10)
 params = (0.1,1,(np.pi*2)/24, 0.5)
 state0=[4,4]
-odeint(model2, state0, t, args = (params))
+odeint(model2, state0, t2, args = (params))
 
 
 
@@ -30,7 +30,9 @@ odeint(model2, state0, t, args = (params))
 # For beginning I only have 1 noisy coordinate (x), not both
 # randMulti tells you which dispersion should random variable E have
 def ode_rand(iterations=1, timepoints=np.linspace(0,0.5,10), state0=[4,4], params=(0.1,1,(np.pi*2)/24, 0.5), randMulti=1):
-    solutions = np.empty(shape=[0,2]) # Storing variable for solutions. Time-inefficient solution (better - create 1 time an array via np.zeros(), and then set the values to smth.else)
+    solutions = np.empty(shape=[0,2]) 
+    # Storing variable for solutions. Time-inefficient solution 
+    # (better - create 1 time an array via np.zeros(), and then set the values to smth.else)
 
 # The loop works like this: draw number E from normal standart distribution, solve the model with parameters and this E, 
 # change the initial state to the last solution of the model, repeat.
@@ -50,11 +52,11 @@ def ode_rand(iterations=1, timepoints=np.linspace(0,0.5,10), state0=[4,4], param
 
 
 # Solving
-sol = ode_rand(500,t,[4,4],params, 0.01)
-sol2 = ode_rand(500,t,[4,4],params, 0.05)
-sol3 = ode_rand(500,t,[4,4],params, 0.1)
-sol4 = ode_rand(500,t,[4,4],params, 0.2)
-sol5 = ode_rand(500,t,[4,4],params, 0.5)
+sol = ode_rand(500,t2,[4,4],params, 0.01)
+sol2 = ode_rand(500,t2,[4,4],params, 0.05)
+sol3 = ode_rand(500,t2,[4,4],params, 0.1)
+sol4 = ode_rand(500,t2,[4,4],params, 0.2)
+sol5 = ode_rand(500,t2,[4,4],params, 0.5)
 
 # Plotting
 plt.figure(figsize=(19,8))
