@@ -4,7 +4,7 @@
 
 from scipy.integrate import odeint
 from scipy.signal import hilbert
-from scipy.optimize import curve_fit
+#from scipy.optimize import curve_fit
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -56,42 +56,125 @@ def oscillator_system(state_vector, t, alpha, A, omega, twist, K, E):
     return dzdt.reshape(-1).tolist()
 
 
+
+
+t11 = np.linspace(0,0.5,10)
 iterations=3
 randMulti=0.1
-x000=[]
-def ode_rand(iterations=1, timepoints, state0, params, randMulti):    
+#n=2
+#E=[1,1]
+params = ([0.1],[1],[(np.pi*2)/24],[0.0],[0.0]) # alpha (amplitude relaxation rate), A (amplitude), omega, twist, K (coupling), E (white noise, if any)
+#params = ([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)
+
+
+
+
+def ode_rand(number_of_oscillators, iterations, timepoints, state0, params, randMulti):    
+    n=number_of_oscillators
+    solutions = []
     for i in range(iterations):
-    E = randMulti*float(np.random.randn(1))
-    x000.append(odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/24],[0.0]*n,[0.0]*n, E))))
+        E = randMulti*np.random.randn(n)
+        solutions.append(odeint(oscillator_system, state0, timepoints, args = ((params[0]*n,params[1]*n,params[2]*n,params[3]*n,params[4]*n, E))))
+        #state0=solutions[-1].tolist()
+    return solutions[0]
+
+
+
+
+
+
+##################################################
+
+
+def ode_rand2(number_of_oscillators, iterations, timepoints, state0, params, randMulti):    
+    n=number_of_oscillators
+    lt = len(timepoints)
+    #solutions = np.zeros((lt*iterations,n*2))
+    solutions = np.zeros((lt*iterations-iterations+1,n*2))
+    start=0
+    end=lt
+    #print ('initial solutions: ', solutions, '\n\n\n\n')
+    for i in range(iterations):
+        E = randMulti*np.random.randn(n)
+        
+        s = odeint(oscillator_system, state0, timepoints, args = ((params[0]*n, params[1]*n, params[2]*n, params[3]*n, params[4]*n, E)))
+        solutions[start:end] = s
+        #print ('solutions[start:end-1]  ', solutions[start:end-1], '\n')
+        # DO NOT WRITE INTO THE solutions[] THE LAST DATAPOINTS, BUT KEEP THEM IN A SEPARATE VARIABLE
+        state0 = s[-1].tolist()
+        #print ('this is s: ', s)
+        #print ('this is state0: ', state0)
+        start = end-1
+        end += lt-1
+        ###print ('random variable: ' + str(E) + '    ', 'start: ' + str(start) + '   ', 'end: ' + str(end) + '   ', '\n')
+        #print ('solutions[' + str(start) + ':'+str(end-1) + ']  ', solutions[start:end], '\n')
+        #print ('solutions: ', solutions, '\n\n\n')
+    
+    #print ('random variable: ' + str(E) + '    ', 'start: ' + str(start) + '   ', 'end: ' + str(end) + '   ', '\n')
+    #print ('solutions: ', solutions, '\n\n\n')
+    return solutions
+
+"""
+Reasonable execution
+
+x4=ode_rand2(2,160,np.linspace(0,0.5,10),[2,2,3,3],params,0.1)
+
+WHAT DO YOU NEED TO DO THE NEXT TIME:
+    1) Do something about the timepoint-variable (cause in the ode_rand() it doesn't work as expected))
+    2) Comment everything! Otherwise, it's very hard to understand.
+"""
+
+
+
+ode_rand2(2,3,np.linspace(0,10,4),[2,2,3,3],params,0)
+
+
+
+
+######################################################
+
+
+
+
+
 
 
 # Example of the system initiation
 # x1 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
 
+"""
+# TESTING OF ode_rand2()
+
+t11=np.linspace(0,10,7)
+lt = len(t11)
+randMulti=0.1
+
+start=0
+end=lt
+state0=[2,2,3,3]
+n=int(len(state0)/2)
+solutions = np.zeros((lt*iterations,n*2))
+for i in range(iterations):
+    E = randMulti*np.random.randn(n)
+    print ('random variable: ' + str(E) + '    ', 'start: ' + str(start) + '   ', 'end: ' + str(end) + '   ')
+    solutions[start:end] = (odeint(oscillator_system, state0, t11, args = ((params[0]*n,params[1]*n,params[2]*n,params[3]*n,params[4]*n, E))))
+    start=end
+    end+=lt
+    state0=solutions[-1].tolist()
+np.round(solutions,3)
+
+"""
 
 
 
 
-def ode_rand(iterations=1, timepoints=np.linspace(0,0.5,10), state0=[4,4], params=(0.1,1,(np.pi*2)/24, 0.5), randMulti=1):
-    solutions = np.empty(shape=[0,2]) 
-    # Storing variable for solutions. Time-inefficient solution 
-    # (better - create 1 time an array via np.zeros(), and then set the values to smth.else)
 
-# The loop works like this: draw number E from normal standart distribution, solve the model with parameters and this E, 
-# change the initial state to the last solution of the model, repeat.
-    for i in range(iterations): 
-        E = randMulti*float(np.random.randn(1)) # Noisy variable
-        def model2 (vector,timepoints,alpha, A, omega, twist):
-            x = vector[0]
-            y = vector[1]
-            dxdt = x*alpha*(A-np.sqrt(x**2 + y**2)) - y*(omega + twist*(A - np.sqrt(x**2 + y**2))) + E
-            dydt = y*alpha*(A-np.sqrt(x**2 + y**2)) + x*(omega + twist*(A - np.sqrt(x**2 + y**2)))
-            dzdt = [dxdt, dydt]
-            return dzdt
-        solutions = np.append(solutions, odeint(model2,state0,timepoints,args=(params)), axis=0) # Works here like .append() for lists as storing variables
-        state0 = solutions[-1].tolist()
 
-    return solutions
+
+
+
+
+
 
 
 
