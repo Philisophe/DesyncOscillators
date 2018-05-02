@@ -145,6 +145,74 @@ def ode_rand2(number_of_oscillators, iterations, timepoints, state0, params, ran
 
 
 
+def ode_rand3(number_of_oscillators, timepoints, state0, params, randMulti):   
+    """The function models the behaviour of system of coupled Poincare oscillators with noise. 
+    To do that, it executes odeint() function with oscillator_system as a first parameter multiple times in a row, changing each time noisy variable E to a random value drawn from standart normal distribution (SND).
+    The dispersion (sigma) of SND for E is set by randMulti parameter.
+    
+    timepoints - expects a np.linspace(x,y,z) so that for every (x-y)=0.5 there would be at least z=10.
+    
+    The function returns solutions in the form of np.array.
+    
+    Example of execution: 
+    2 oscillator system executed 160 consequetive times with 10 datapoints each, starting from [2,2] and [3,3] with params as all parameters except for noise, which is set explicitely by E.
+    
+    x4=ode_rand2(2,160,np.linspace(0,0.5,10),[2,2,3,3],params,0.1)
+    plt.plot(x4[:,0], label = 'x-coordinate of the 1st oscillator')
+    plt.legend()
+    
+    """
+    t = timepoints # Shortcut
+    n = number_of_oscillators # Shortcut
+    iterations = int(len(timepoints)/10) # because we decided that the stop should be made every 0.5h, 
+    # and that there should be at least 10 dp for every 0.5h, that means that number of stops is exactly number of datapoints/10.
+    solutions = np.zeros((len(t)-iterations+1,n*2)) # Creates array of zeros of an appropriate size to store iterative executions of odeint() function
+    
+    time = [] # Variable for storing the effective timepoints (in case I lose any)
+    start=0
+    
+    for i in range(iterations):
+        
+        E = randMulti*np.random.randn(n) # Creates vector of random numbers from SND
+        
+        s = odeint(oscillator_system, state0, t[start:start+10], args = ((params[0], params[1], params[2], params[3], params[4], E))) # The parameters: alpha, amplitude, omega, twist, coupling
+        solutions[start:start+10] = s
+        
+        state0 = s[-1].tolist()
+        time.append(t[start:start+10])
+        start = start+10-1
+        
+        #print ('s: ', s ,'\n')
+        #print ('solutions: ', solutions)
+        #print('start: ', start)
+        #print ('time: ', time)
+
+    return remdup(flat_list(time)), solutions
+
+
+
+
+
+
+
+
+
+
+
+
+
+#def func(t, ):
+ #   t[]
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -298,7 +366,15 @@ def expon(x, a, b, c):
 n=2 
 params = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n) 
 # alpha (amplitude relaxation rate), A (amplitude), omega, twist, K (coupling), E (white noise, if any)
+t = np.linspace(0,26,20*26)
+state0=[2,2,3,3]
+s0 = ode_rand3(n,t,state0,params,0)
+t0 = s0[0]
+x0 = s0[1]
+t1 = np.linspace(0,26,26*20)
+x1 = odeint(oscillator_system, state0, np.linspace(0,26,20*26), args = (([0.1]*n,[1]*n,[(np.pi*2)/(24)]*n,[0.0]*n,[0.0]*n, [0]*n)))
 
+plt.plot(t0,x0[:,0], 'o', label = 'ode_rand3')
+plt.plot(t1,x1[:,0], '+', label = 'odeint()')
 
-
-
+plt.legend()
