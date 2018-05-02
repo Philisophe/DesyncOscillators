@@ -325,7 +325,7 @@ MEAN(x-coordinate)
 #NO COUPLING
 
 n = 1000 # Number of oscillators
-t = np.linspace(0, 500, 5000)
+t = np.linspace(0, 370, 3700)
 state0 = [2,2]*n
 
 x1 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
