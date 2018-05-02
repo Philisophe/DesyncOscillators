@@ -9,12 +9,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# Complementary function for solver (oscillator_system) needed to solve multiple coupled (having terms that refer to each other) equations simultaneously.
-# In case you have a low number of equations (up to 4-6) it might be OK to just explicitely 
-# set the equations and parameters in the solver itself. However, if you want tp compute more equations, as well as set the values for every parameter separately and easily change the number of equations you have,
-# This code might help you.
 
-def oscillator(x, y, t, i, alpha, A, omega, twist, K): 
+
+def oscillator(x, y, t, i, alpha, A, omega, twist, K, E): 
+    """ Complementary function for solver (oscillator_system) needed to solve multiple coupled (having terms that refer to each other) equations simultaneously.
+In case you have a low number of equations (up to 4-6) it might be OK to just explicitely set the equations and parameters in the solver itself. 
+However, if you want tp compute more equations, as well as set the values for every parameter separately and easily change the number of equations you have, this code might help you.
+
+Each coordinate (x,y) or parameter (alpha,A,omega,twist,K,E) is a vector x[], where x[i] is a value for i-th oscillator.
+It takes vectors as input and returns vectors as output. 
+
+The system (coupled Poincare oscillators with twist and noise) is:
+dx1dt = x1*alpha1*(A1-np.sqrt(x1**2 + y1**2)) - y1*(omega1 + twist1*(A1 - np.sqrt(x1**2 + y1**2))) + K1*(np.mean(x)) + E1
+dy1dt = y1*alpha1*(A1-np.sqrt(x1**2 + y1**2)) + x1*(omega1 + twist1*(A1 - np.sqrt(x1**2 + y1**2)))
+
+"""
+
     # It takes x and y (as well as parameters) as vectors, then throws out dx/dt and dy/dt for every respective value
     x1 = x[i]
     y1 = y[i]
@@ -24,19 +34,25 @@ def oscillator(x, y, t, i, alpha, A, omega, twist, K):
     omega1 = omega[i]
     twist1=twist[i]
     K1 = K[i]
+    E1 = E[i]
     
-    dx1dt = x1*alpha1*(A1-np.sqrt(x1**2 + y1**2)) - y1*(omega1 + twist1*(A1 - np.sqrt(x1**2 + y1**2))) + K1*(np.mean(x))
+    dx1dt = x1*alpha1*(A1-np.sqrt(x1**2 + y1**2)) - y1*(omega1 + twist1*(A1 - np.sqrt(x1**2 + y1**2))) + K1*(np.mean(x)) + E1
     dy1dt = y1*alpha1*(A1-np.sqrt(x1**2 + y1**2)) + x1*(omega1 + twist1*(A1 - np.sqrt(x1**2 + y1**2)))
 
     return dx1dt, dy1dt
 
 
-# Solver of ODEs
-def oscillator_system(state_vector, t, alpha, A, omega, twist, K):
 
-    # It takes initial conditions as a list in form [x1,y1,x2,y2,x3,y3,x4,y4,...], 
-    # where x1,y1 are initial conditions for the 1st oscillator
-    # And converts it into array with 2 columns
+
+
+# Solver of ODEs
+def oscillator_system(state_vector, t, alpha, A, omega, twist, K, E):
+
+    """ This function describes the 1st parameter for the odeint() function. It uses oscillator() and can be used by ode_rand().
+    
+    It takes initial conditions (state_vector) as a list in form [x1,y1,x2,y2,x3,y3,x4,y4,...], 
+    where x1,y1 are initial conditions for the 1st oscillator and returns vector of results.
+    """
     state_mat = np.array(state_vector).reshape(-1, 2)
     
     # Then we take only the 1st and only the 2nd column and put them into separate variables
@@ -50,9 +66,75 @@ def oscillator_system(state_vector, t, alpha, A, omega, twist, K):
     
     #For every i-th row of state_map let's put there dx1/dt, dy1/dt 
     for i in range(n):
-        dzdt[i, ] = oscillator(x, y, t, i, alpha, A, omega, twist, K)
+        dzdt[i, ] = oscillator(x, y, t, i, alpha, A, omega, twist, K, E)
 
     return dzdt.reshape(-1).tolist()
+
+
+
+
+
+def ode_rand2(number_of_oscillators, iterations, timepoints, state0, params, randMulti):   
+    """The function models the behaviour of system of coupled Poincare oscillators with noise. 
+    To do that, it executes odeint() function with oscillator_system as a first parameter multiple times in a row, changing each time noisy variable E to a random value drawn from standart normal distribution (SND).
+    The dispersion (sigma) of SND for E is set by randMulti parameter.
+    
+    timepoints - expects a tuple (timestart, timeend, number_of_timepoints)
+    Please, always set timepoints[0] to 0.
+    
+    The function returns solutions in the form of np.array. The length of the array is len(timepoints)*iterations.
+    
+    Example of execution: 
+    2 oscillator system executed 160 consequetive times with 10 datapoints each, starting from [2,2] and [3,3] with params as all parameters except for noise, which is set explicitely by E.
+    
+    x4=ode_rand2(2,160,(0,0.5,10),[2,2,3,3],params,0.1)
+    plt.plot(x4[:,0], label = 'x-coordinate of the 1st oscillator')
+    plt.legend()
+    
+    """
+    # Unpacking the 'timepoints' parameter
+    timestart = timepoints[0]
+    timeend = timepoints[1]
+    number_of_timepoints = timepoints[2]
+    
+    n = number_of_oscillators # Shortcut
+    solutions = np.zeros((number_of_timepoints*iterations-iterations+1,n*2)) # Creates array of zeros of an appropriate size to store iterative executions of odeint() function
+    
+    t = np.linspace(timestart, timeend, number_of_timepoints) # First timepoint-variable
+    time = [] # Variable for storing the timepoints from all t
+    
+    start=0
+    end=len(t) # Initial start and end for the overwriting of solutions
+    
+    
+    for i in range(iterations):
+        
+        E = randMulti*np.random.randn(n) # Creates vector of random numbers from SND
+        
+        s = odeint(oscillator_system, state0, t, args = ((params[0], params[1], params[2], params[3], params[4], E))) # The parameters: alpha, amplitude, omega, twist, coupling
+        time.append(list(t))
+        solutions[start:end] = s
+        
+        state0 = s[-1].tolist()
+        
+        start = end-1
+        end += len(t)-1
+        
+        timestart, timeend = timeend, (timeend+timeend-timestart)
+        t = np.linspace(timestart, timeend, number_of_timepoints) # Changing t variable to the new timestart and timeend
+        
+        
+        
+    # "time" is a list of lists, so it should be flattened
+    # because of the overlap (last element of the previoud iteration of odeint() being the first element of the new iteration of odeint())
+    # The consecutive duplicates need to be removed
+    return remdup(flat_list(time)), solutions
+
+
+
+
+
+
 
 
 
@@ -97,7 +179,37 @@ def analysis (solutions):
             "extrVal":extrVal, "extrT":extrT, "phases":phases}
 
 
+
+def flat_list(l):
+    """Unpacks list of lists -> flattened list"""
+    return [item for sublist in l for item in sublist]
+
+
+def remdup(x):
+    """Remove consecutive duplicates from the list"""
+    i=0
+    while i < len(x)-1:
+        if x[i] == x[i+1]:
+            del x[i]
+        else:
+            i = i+1
+    return x
+
+
+def npremdup(x):
+    """Remove consecutive duplicates from the np.array"""
+    i=0
+    while i < len(x)-1:
+        if x[i] == x[i+1]:
+            x = np.delete (x,i)
+        else:
+            i = i+1
+    return x
+
+
+
 def extr(x):
+    """Finds the extrema of the function. Returns [timepoints of extrema, values of extrema] list"""
     diff = np.diff(np.sign(np.diff(x)))
     extrT=[]
     extrVal=[]
@@ -109,6 +221,7 @@ def extr(x):
 
 
 def maxs(list_extr):
+    """Returns every odd element. Designed to be used in combination with extr(), e.g. maxs(extr(solutions))"""
     maxsV=[]
     maxsT=[]
     for i in range(int(len(list_extr[0])/2)):
@@ -122,9 +235,12 @@ def me(x):
 def me2(x):
     return me(np.mean(x, axis=0))
 
-#Running average
-# x - data, N - window size, N2 - number of runs (if N2=0 - 1 run, if N2=1 - 2 runs etc.)
-def run_mean(x, N,N2=0):
+
+def run_mean(x, N, N2=0):
+    """Running average
+    x - data, 
+    N - window size, 
+    N2 - number of runs (if N2=0 - 1 run, if N2=1 - 2 runs etc.)"""
     if N2==0:
         cumsum = np.cumsum(np.insert(x, 0, 0)) 
         return (cumsum[N:] - cumsum[:-N]) / float(N)
@@ -134,6 +250,8 @@ def run_mean(x, N,N2=0):
 
 
 def cart2pol(x, y):
+    """Transforms cartesian coordinates to polar coordinates; 
+    returns vector [theta,rho], where theta is angle in degrees"""
     theta = np.rad2deg(np.arctan2(y, x)) # ix1pol = [cart2pol(x1[:,i*2],x1[:,i*2 +1]) for i in range(n)]n degrees
     rho = np.hypot(x, y)
     return [theta, rho]
@@ -142,14 +260,15 @@ def cart2pol(x, y):
 # Separates x- and y- coordinates
 # int(np.shape(solution)[1]/2)) is the same as n
 def sep(solution):
+    """Separates x- and y- coordinate data, received from odeint() function"""
     solution_x = [solution[:,i*2] for i in range(int(np.shape(solution)[1]/2))]
     solution_y = [solution[:,i*2+1] for i in range(int(np.shape(solution)[1]/2))]
     return [solution_x,solution_y]
 
 
-# Translate the result of odeint() function into the polar coordinates 
-# and returns only the positive values
+
 def sol2pol(solution):
+    """Translate the result of odeint() function into the polar coordinates and returns only the positive values"""
     solution_pol = [cart2pol(solution[:,i*2],solution[:,i*2+1]) for i in range(int(np.shape(solution)[1]/2))]
     for j in range(int(np.shape(solution)[1]/2)):
         solution_pol[j][0] = abs(solution_pol[j][0]) # Only positive values for phases
@@ -178,8 +297,8 @@ def phvar(solution):
 
 
 
-# Calculates envelope
 def env(x):
+    """Calculates envelope of the time-series using Hilbert transformation"""
     return np.abs(hilbert(x))
 
 # Some standart functions to fit to
@@ -194,7 +313,6 @@ def cub(x,a,b,c,d):
 
 def expon(x, a, b, c):
     return a * np.exp(-b * x) + c
-
 
 
 
@@ -216,10 +334,8 @@ THE REAL SCIENCE STARTS HERE
 """
 
 
-
-
-
-
+"""
+# EXAMPLE OF SETTING THE SYSTEM UP
 
 n=2 # Number of oscillators
 t = np.linspace(0, 600, 6000)
@@ -244,52 +360,13 @@ for i in range(n):
 plt.ylim(-2,5)
 plt.legend()
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
 """
-# Certain stuff to analyze
-x1x=[x1[:,i*2] for i in range(n)] # Only x-coordinate
-x1y = [x1[:,(i*2)+1] for i in range(n)] # Only y-coordinate
-
-# Cartesian-to-polar conversion
-x1pol = [cart2pol(x1[:,i*2],x1[:,i*2 +1]) for i in range(n)] # Same as x1 but in polar coordinates; changes shape of the array
-for i in range(n):
-    x1pol[i][0] = abs(x1pol[i][0]) # Taking only the absolute values of phases (to avoid jumps from 179 to -179)
-
-# Taking variance of phases (theta's)
-thetas1 = [x1pol[i][0] for i in range(n)] # Extract only thetas
-var1 = np.var(thetas1, axis=0)
-
-# Getting the envelope of the variance
-extrVal=[]
-extrT=[]
-diff = np.diff(np.sign(np.diff(var1)))
-for j in range(len(diff)):
-    if diff[j]!=0:
-        extrVal.append( (np.mean(var1[j:j+2])) )
-        extrT.append( (np.mean(t[j:j+2])) )
-# Taking only the positive part of the envelope
-extrVal2 = [extrVal[i*2] for i in range(int(len(extrVal)/2))]
-extrT2 = [extrT[i*2] for i in range(int(len(extrVal)/2))]
-
-
-# Analysis of ODEs
-als = analysis(x1)
-"""
-
 
 
 """
 # One attempt to define phase using extrema and 0-crossings
+# Analysis of ODEs
+als = analysis(x1)
 ph = als['phases']
 zc = als['zeroCrossT']
 ext = als['extrT']
@@ -308,9 +385,23 @@ n = int(len(state0) / 2) # Number of oscillators
 
 
 
+
+
+
+
+
+
+
+
+
+
 """
 ##########################################################################################################
 ##########################################################################################################
+
+# THIS IS DATA ONLY FOR NON-NOISY SYSTEMS
+
+####
 
 
 # GRAPH 1
@@ -812,9 +903,12 @@ plt.show()
 
 
 
+"""
 
+##########################################################################################################
+##########################################################################################################
 
-
+"""
 
 
 
