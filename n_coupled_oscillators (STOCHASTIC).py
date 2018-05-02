@@ -9,12 +9,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# Complementary function for solver (oscillator_system) needed to solve multiple coupled (having terms that refer to each other) equations simultaneously.
-# In case you have a low number of equations (up to 4-6) it might be OK to just explicitely 
-# set the equations and parameters in the solver itself. However, if you want tp compute more equations, as well as set the values for every parameter separately and easily change the number of equations you have,
-# This code might help you.
+
 
 def oscillator(x, y, t, i, alpha, A, omega, twist, K, E): 
+    """ Complementary function for solver (oscillator_system) needed to solve multiple coupled (having terms that refer to each other) equations simultaneously.
+In case you have a low number of equations (up to 4-6) it might be OK to just explicitely set the equations and parameters in the solver itself. 
+However, if you want tp compute more equations, as well as set the values for every parameter separately and easily change the number of equations you have, this code might help you.
+
+Each coordinate (x,y) or parameter (alpha,A,omega,twist,K,E) is a vector x[], where x[i] is a value for i-th oscillator.
+It takes vectors as input and returns vectors as output. 
+
+The system (coupled Poincare oscillators with twist and noise) is:
+dx1dt = x1*alpha1*(A1-np.sqrt(x1**2 + y1**2)) - y1*(omega1 + twist1*(A1 - np.sqrt(x1**2 + y1**2))) + K1*(np.mean(x)) + E1
+dy1dt = y1*alpha1*(A1-np.sqrt(x1**2 + y1**2)) + x1*(omega1 + twist1*(A1 - np.sqrt(x1**2 + y1**2)))
+
+"""
+
     # It takes x and y (as well as parameters) as vectors, then throws out dx/dt and dy/dt for every respective value
     x1 = x[i]
     y1 = y[i]
@@ -35,9 +45,11 @@ def oscillator(x, y, t, i, alpha, A, omega, twist, K, E):
 # Solver of ODEs
 def oscillator_system(state_vector, t, alpha, A, omega, twist, K, E):
 
-    # It takes initial conditions as a list in form [x1,y1,x2,y2,x3,y3,x4,y4,...], 
-    # where x1,y1 are initial conditions for the 1st oscillator
-    # And converts it into array with 2 columns
+    """ This function describes the 1st parameter for the odeint() function. It uses oscillator() and can be used by ode_rand().
+    
+    It takes initial conditions (state_vector) as a list in form [x1,y1,x2,y2,x3,y3,x4,y4,...], 
+    where x1,y1 are initial conditions for the 1st oscillator and returns vector of results.
+    """
     state_mat = np.array(state_vector).reshape(-1, 2)
     
     # Then we take only the 1st and only the 2nd column and put them into separate variables
@@ -86,16 +98,31 @@ def ode_rand(number_of_oscillators, iterations, timepoints, state0, params, rand
 ##################################################
 
 
-def ode_rand2(number_of_oscillators, iterations, timepoints, state0, params, randMulti):    
-    n=number_of_oscillators
-    lt = len(timepoints)
-    #solutions = np.zeros((lt*iterations,n*2))
-    solutions = np.zeros((lt*iterations-iterations+1,n*2))
+def ode_rand2(number_of_oscillators, iterations, timepoints, state0, params, randMulti):   
+    """The function models the behaviour of system of coupled Poincare oscillators with noise. 
+    To do that, it executes odeint() function with oscillator_system as a first parameter multiple times in a row, changing each time noisy variable E to a random value drawn from standart normal distribution (SND).
+    The dispersion (sigma) of SND for E is set by randMulti parameter.
+    
+    The function returns solutions in the form of np.array. The length of the array is len(timepoints)*iterations.
+    
+    Example of execution: 
+    2 oscillator system executed 160 consequetive times with 10 datapoints each, starting from [2,2] and [3,3] with params as all parameters except for noise, which is set explicitely by E.
+    
+    x4=ode_rand2(2,160,np.linspace(0,0.5,10),[2,2,3,3],params,0.1)
+    plt.plot(x4[:,0], label = 'x-coordinate of the 1st oscillator')
+    plt.legend()
+    
+    """
+    
+    n = number_of_oscillators
+    solutions = np.zeros((len(timepoints)*iterations-iterations+1,n*2)) # Creates array of zeros of an appropriate size to store iterative executions of odeint() function
+    
     start=0
-    end=lt
+    end=len(timepoints) # Initial start and end for the overwriting of solutions
+    
     #print ('initial solutions: ', solutions, '\n\n\n\n')
     for i in range(iterations):
-        E = randMulti*np.random.randn(n)
+        E = randMulti*np.random.randn(n) # Creates vector of random numbers from SND
         
         s = odeint(oscillator_system, state0, timepoints, args = ((params[0]*n, params[1]*n, params[2]*n, params[3]*n, params[4]*n, E)))
         solutions[start:end] = s
@@ -105,7 +132,7 @@ def ode_rand2(number_of_oscillators, iterations, timepoints, state0, params, ran
         #print ('this is s: ', s)
         #print ('this is state0: ', state0)
         start = end-1
-        end += lt-1
+        end += len(timepoints)-1
         ###print ('random variable: ' + str(E) + '    ', 'start: ' + str(start) + '   ', 'end: ' + str(end) + '   ', '\n')
         #print ('solutions[' + str(start) + ':'+str(end-1) + ']  ', solutions[start:end], '\n')
         #print ('solutions: ', solutions, '\n\n\n')
@@ -113,6 +140,12 @@ def ode_rand2(number_of_oscillators, iterations, timepoints, state0, params, ran
     #print ('random variable: ' + str(E) + '    ', 'start: ' + str(start) + '   ', 'end: ' + str(end) + '   ', '\n')
     #print ('solutions: ', solutions, '\n\n\n')
     return solutions
+
+
+
+
+
+
 
 """
 Reasonable execution
@@ -453,7 +486,7 @@ MEAN(x-coordinate)
 #NO COUPLING
 
 n = 1000 # Number of oscillators
-t = np.linspace(0, 500, 5000)
+t = np.linspace(0, 370, 3700)
 state0 = [2,2]*n
 
 x1 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n)))
