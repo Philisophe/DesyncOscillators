@@ -140,6 +140,7 @@ def ode_rand3(number_of_oscillators, timepoints, state0, params, randMulti):
     The dispersion (sigma) of SND for E is set by randMulti parameter.
     
     timepoints - expects a np.linspace(x,y,z) so that for every (x-y)=0.5 there would be at least z=10.
+    In other words, the stop should be made every 0.5h and the should be exactly 10 datapoint per execution.
     
     The function returns solutions in the form of np.array.
     
@@ -278,7 +279,12 @@ def maxs(list_extr):
 def me(x):
     return maxs(extr(x))
 def me2(x):
+    """Returns maxs(extr(np.mean(x,axis=0))).
+    In other words - maxima of mean of x as a list [times, values]"""
     return me(np.mean(x, axis=0))
+
+def me3(x, N, N2):
+    return me(run_mean(np.mean(x, axis=0),N,N2))
 
 
 def run_mean(x, N, N2=0):
@@ -325,6 +331,11 @@ def sol2pol(solution):
 # Returns phase variance and the upper envelope of it
 # Looks ugly, but that's OK; relies on 't'
 def phvar(solution):
+    """Computes phase (theta) variance
+    Returns list [phase variance, the upper envelope of phase variance as maxima]
+    
+    Looks ugly, but that's OK; 
+    relies on 't'"""
     sol_pol = sol2pol(solution)
     thetas = [sol_pol[i][0] for i in range(int(np.shape(solution)[1]/2))]
     var = np.var(thetas, axis=0)
@@ -358,6 +369,7 @@ def cub(x,a,b,c,d):
 
 def expon(x, a, b, c):
     return a * np.exp(-b * x) + c
+
 
 
 
@@ -974,6 +986,201 @@ plt.show()
 """
 
 
+"""
+TEST IF TWO SYSTEMS (noisy and non-noisy) GIVE THE SAME OUTPUT IF E=0
+n=2 
+params = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n) 
+# alpha (amplitude relaxation rate), A (amplitude), omega, twist, K (coupling), E (white noise, if any)
+t = np.linspace(0,100,20*100)
+state0=[2,2,3,3]
+
+s0 = ode_rand3(n,t,state0,params,0)
+t0 = s0[0]
+x0 = s0[1]
+t1 = np.linspace(0,100,100*20)
+x1 = odeint(oscillator_system, state0, np.linspace(0,100,20*100), args = (([0.1]*n,[1]*n,[(np.pi*2)/(24)]*n,[0.0]*n,[0.0]*n, [0]*n)))
+
+plt.plot(t0,x0[:,0], 'o', label = 'ode_rand3')
+plt.plot(t1,x1[:,0], '+', label = 'odeint()')
+
+plt.legend()
+"""
+
+"""
+n=1 
+params = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n)
+state0 = [2,2]
+x2 = ode_rand3(n,np.linspace(0,200,200*20),state0,params,0.1)
+x3 = ode_rand3(n,np.linspace(0,200,200*20),state0,params,0.2)
+x4 = ode_rand3(n,np.linspace(0,200,200*20),state0,params,0.3)
+
+plt.figure(figsize=(16,8))
+plt.plot(x2[0],x2[1][:,0], label='E=0.1')
+plt.plot(x3[0],x3[1][:,0], label='E=0.2')
+plt.plot(x4[0],x4[1][:,0], label='E=0.3')
+plt.legend()
+
+Smoothened
+runx=[]
+for i in [x2,x3,x4]:
+    runx.append(run_mean(i[1][:,0],72,2))
+
+plt.figure(figsize=(16,8))
+plt.plot(runx[0], label='E=0.1')
+plt.plot(runx[1], label='E=0.2')
+plt.plot(runx[2], label='E=0.3')
+plt.legend()
+"""
+
+"""
+#########################################################
+STARTING TO WORK ON THE 1ST PIC
+
+GRAPH 1
+
+n=1000
+params = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n)
+state0 = [2,2]*n
+t = np.linspace(0,600,600*20)
+
+x1 = ode_rand3(n,t,state0,params,0.05)
+x2 = ode_rand3(n,t,state0,params,0.1)
+x3 = ode_rand3(n,t,state0,params,0.2)
+x4 = ode_rand3(n,t,state0,params,0.5)
+
+x1x = sep(x1[1])[0]
+x2x = sep(x2[1])[0]
+x3x = sep(x3[1])[0]
+x4x = sep(x4[1])[0]
+
+############## Inside one variable
+plt.figure(figsize=(16,8))
+for i in range(len(x2x)):
+    plt.plot(t[0:x2[1].shape[0]], x2x[i], label='x-coord. of osc # ' + str(i))
+plt.xlabel('time, hours')
+plt.ylabel('X-coordinate of 10 oscillators with E=0.1')
+plt.legend()
+
+###########################
+    MEAN
+##################
+plt.figure(figsize=(16,8))
+
+plt.plot(t[0:x1[1].shape[0]], np.mean(x1x, axis=0), label='E=0.05')
+plt.plot(t[0:x2[1].shape[0]], np.mean(x2x, axis=0), label='E=0.1')
+plt.plot(t[0:x3[1].shape[0]], np.mean(x3x, axis=0), label='E=0.2')
+plt.plot(t[0:x4[1].shape[0]], np.mean(x4x, axis=0), label='E=0.5')
+
+plt.xlabel('time, hours')
+plt.ylabel('Mean of 1000 oscillators with different noise intensities')
+plt.legend()
+
+######## only maxima
+plt.figure(figsize=(16,8))
+
+plt.plot(me2(x1x)[0], me2(x1x)[1], 'o-', label='E=0.05')
+plt.plot(me2(x2x)[0], me2(x2x)[1], 'o-', label='E=0.1')
+plt.plot(me2(x3x)[0], me2(x3x)[1], 'o-', label='E=0.2')
+plt.plot(me2(x4x)[0], me2(x4x)[1], 'o-', label='E=0.5')
+
+plt.xlabel('time, hours')
+plt.ylabel('Mean (maxima only) of 1000 oscillators with different noise intensities')
+plt.legend()
+
+######### using env()
+plt.figure(figsize=(16,8))
+
+plt.plot(t[5:x1[1].shape[0]-19], env(np.mean(x1x, axis=0))[5:-19], label='E=0.05')
+plt.plot(t[5:x2[1].shape[0]-19], env(np.mean(x2x, axis=0))[5:-19], label='E=0.1')
+plt.plot(t[5:x3[1].shape[0]-19], env(np.mean(x3x, axis=0))[5:-19], label='E=0.2')
+plt.plot(t[5:x4[1].shape[0]-19], env(np.mean(x4x, axis=0))[5:-19], label='E=0.5')
+
+plt.xlabel('time, hours')
+plt.ylabel('Envelope of the mean of 1000 oscillators with different noise intensities')
+plt.legend()
+
+#########
+
+######## Using some explicit shit - doesn't work that well as it slightly shifts the curve 
+plt.figure(figsize=(16,8))
+
+plt.plot(t[0:10743], run_mean(np.mean(x4x, axis=0), 30, 1), label='E=0.5 smoothened')
+plt.plot(t[0:x4[1].shape[0]], np.mean(x4x, axis=0), label='E=0.5 not smoothened')
+
+plt.xlabel('time, hours')
+plt.ylabel('Mean of 1000 oscillators with different noise intensities')
+#plt.xlim(0,150)
+plt.legend()
+
+
+######### Only maxima after smoothing ! (HERE IS THE RIGHT EXPRESSION FOR THE MOST NOISY SIGNALS)
+plt.figure(figsize=(16,8))
+m = me(run_mean(np.mean(x4x, axis=0), 30, 1))
+m1 = me(np.mean(x4x, axis=0))
+plt.plot(m[0], m[1],'+', label='E=0.5 smoothened (30,2), maxima') # This one performs better than anything else
+#plt.plot(m1[0], m1[1],'o', label='E=0.5 not smoothened, maxima')
+plt.plot(t[0:x4[1].shape[0]], np.mean(x4x, axis=0), label='E=0.5 not smoothened, original data')
+
+plt.xlabel('time, hours')
+plt.ylabel('Mean of 1000 oscillators with different noise intensities')
+#plt.xlim(0,150)
+plt.legend()
+
+
+#################
+    VAR (X-COORD)
+#############
+plt.figure(figsize=(16,8))
+
+plt.plot(t[0:x1[1].shape[0]], np.var(x1x, axis=0), label='E=0.05')
+plt.plot(t[0:x2[1].shape[0]], np.var(x2x, axis=0), label='E=0.1')
+plt.plot(t[0:x3[1].shape[0]], np.var(x3x, axis=0), label='E=0.2')
+plt.plot(t[0:x4[1].shape[0]], np.var(x4x, axis=0), label='E=0.5')
+
+plt.xlabel('time, hours')
+plt.ylabel('Variance of x-coordinate of 1000 oscillators with different noise intensities')
+plt.legend()
+
+#######
+running_mean(var(x-coord))
+#######
+plt.figure(figsize=(16,8))
+
+plt.plot (t[:10562], run_mean(np.var(x1x,axis=0),240), label = 'E=0.05')
+#plt.plot (t[:10323], run_mean(np.var(x1x,axis=0),240,1), label = 'E=0.05')
+#plt.plot (t[:9364], run_mean(np.var(x1x,axis=0),240,2), label = 'E=0.05')
+plt.plot (t[:10562], run_mean(np.var(x2x,axis=0),240), label = 'E=0.1')
+plt.plot (t[:10562], run_mean(np.var(x3x,axis=0),240), label = 'E=0.2')
+plt.plot (t[:10562], run_mean(np.var(x4x,axis=0),240), label = 'E=0.5')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (240,1) with different noise intensities')
+plt.xlabel ('time, hours')
+
+plt.legend()
+plt.show()
+
+########################
+    VAR (PHASE)
+##################
+
+plt.figure(figsize=(16,8))
+
+plt.plot(t[0:x1[1].shape[0]], phvar(x1[1])[0], label='E=0.05')
+plt.plot(t[0:x2[1].shape[0]], phvar(x2[1])[0], label='E=0.1')
+plt.plot(t[0:x3[1].shape[0]], phvar(x3[1])[0], label='E=0.2')
+plt.plot(t[0:x4[1].shape[0]], phvar(x4[1])[0], label='E=0.5')
+
+plt.xlabel('time, hours')
+plt.ylabel('Variance of phase of 1000 oscillators with different noise intensities')
+plt.legend()
+
+#######
+running_mean(var(phase))
+#######
+
+
+
+"""
 
 
 
