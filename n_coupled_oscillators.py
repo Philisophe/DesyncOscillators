@@ -359,19 +359,36 @@ def env(x):
 
 # Some standart functions to fit to
 def lin(x, a, b):
+    """Returns ax+b"""
     return (a*x + b)
 
 def quad(x, a, b, c):
+    """Returns ax^2 + bx + c"""
     return (a*(x**2) + b*x + c)
 
 def cub(x,a,b,c,d):
+    """Returns ax^3 + bx^2 + cx + d"""
     return (a*(x**3) + b*(x**2) + c*x + d)
 
 def expon(x, a, b, c):
+    """Returns ae^(-bx) + c"""
     return a * np.exp(-b * x) + c
 
+def roundl(x, n):
+    """Round list x up to n digits"""
+    return list(map(lambda x,n: round(x,n), x,[n]*len(x)))
 
+def norm(x):
+    """Returns normalised array or list"""
+    return x/np.mean(x) 
 
+def areeq(x,y):
+    """Says if two arrays are equal. If one is bigger than other - shows answers only for the number of elements from the smaller one."""
+    return list(map(lambda x,y:x==y, x,y))
+
+def slp2ang(x):
+    """Converts slope of the linear function to angles"""
+    return list(map(lambda x:np.rad2deg(np.arctan(x)),x))
 
 """
 ###################################################################################################################################
@@ -544,9 +561,13 @@ ydata4 = np.array(me(np.mean(x4x, axis=0))[1])
 
 popt1,pcov1 = curve_fit(lin,xdata1,ydata1)
 popt2,pcov2 = curve_fit(lin,xdata2[0:5],ydata2[0:5])
-popt3,pcov3 = curve_fit(lin,xdata3[0:5],ydata3[0:5])
-popt4,pcov4 = curve_fit(lin,xdata4[0:5],ydata4[0:5])
+popt3,pcov3 = curve_fit(lin,xdata3[0:4],ydata3[0:4])
+popt4,pcov4 = curve_fit(lin,xdata4[0:3],ydata4[0:3])
 
+tangents = [popt1[0],popt2[0],popt3[0], popt4[0]]
+nt = norm(tangents)
+rt = roundl(tangents,4)
+angles = slp2ang(tangents)
 
 plt.figure(figsize=(10,6))
 plt.plot(xdata1,ydata1, 'ro', label = 's=0.5 maxima')
@@ -561,11 +582,21 @@ plt.plot(xdata3, lin(xdata3, *popt3),'b--', label = 's=1.5 fit')
 plt.plot(xdata4,ydata4, 'ko', label = 's=2.0 maxima')
 plt.plot(xdata4, lin(xdata4, *popt4), 'k--', label = 's=2.0 fit')
 
+# These things need to be applied after xlim() and ylim()
+#plt.text(70,1.1,str(rt[0]), rotation=np.rad2deg(np.arctan(rt)))
+#plt.text(70,1.03,str(rt[0]) + ' incorrect rotation', rotation=angles[0])
+
 plt.ylabel ('Maxima of mean(x-coordinate) of 1000 oscillators fitted to line')
 plt.xlabel ('time, hours')
 
-plt.xlim(20,250)
-plt.ylim(-1.7,1.3)
+texttang = ''
+for i in rt:
+    texttang = texttang+str(i)+' : '
+texttang = texttang[:-3]
+plt.text(133,1.1,'The slopes of curves are\n' + texttang)
+
+plt.xlim(15,200)
+plt.ylim(-0.4,1.3)
 plt.legend()
 
 
@@ -633,6 +664,21 @@ plt.xlabel ('time, hours')
 plt.legend()
 plt.show()
 
+########### 
+# 12h as a window
+plt.figure(figsize=(20,8))
+
+plt.plot (t[:3462], run_mean(np.var(x1x,axis=0),120,1), label = 'sigma=0.5')
+plt.plot (t[:3462], run_mean(np.var(x2x,axis=0),120,1), label = 'sigma=1')
+plt.plot (t[:3462], run_mean(np.var(x3x,axis=0),120,1), label = 'sigma=1.5')
+plt.plot (t[:3462], run_mean(np.var(x4x,axis=0),120,1), label = 'sigma=2')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (72,4)')
+plt.xlabel ('time, hours')
+
+plt.legend()
+plt.show()
+
 
 #############
 FITTING TO THE DIFFERENT FUNCTIONS / PLOTTING IN LOG()
@@ -664,8 +710,6 @@ popt3,pcov3 = curve_fit(quad,xdata,ydata3)
 popt4,pcov4 = curve_fit(quad,xdata,ydata4)
 
 
-
-
 plt.figure(figsize=(20,8))
 
 plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
@@ -686,9 +730,87 @@ plt.xlabel ('time, hours')
 plt.legend()
 plt.show()
 
+###### Fitting to quadratic - better fits
 
-###### Fitting to the exponential
+xdata=t[:3416]
+ydata1=run_mean(np.var(x1x,axis=0),72,3)
+ydata2=run_mean(np.var(x2x,axis=0),72,3)
+ydata3=run_mean(np.var(x3x,axis=0),72,3)
+ydata4=run_mean(np.var(x4x,axis=0),72,3)
 
+popt1,pcov1 = curve_fit(quad,xdata[:1100],ydata1[:1100])
+popt2,pcov2 = curve_fit(quad,xdata[:900],ydata2[:900])
+popt3,pcov3 = curve_fit(quad,xdata[:400],ydata3[:400])
+popt4,pcov4 = curve_fit(quad,xdata[:300],ydata4[:300])
+
+plt.figure(figsize=(16,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
+plt.plot(xdata,quad(xdata,*popt1),'r-', label = 'fit')
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,quad(xdata,*popt2),'m-', label = 'fit')
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,quad(xdata,*popt3),'b-', label = 'fit')
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,quad(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (72,4) fitted to quadratic function')
+plt.xlabel ('time, hours')
+#plt.xlim(-,)
+plt.ylim(-0.05,0.55)
+#plt.yscale('log')
+plt.legend()
+plt.show()
+
+###########  Fitting to quadratic - better fits and other running_average
+
+xdata=t[:3462]
+ydata1=run_mean(np.var(x1x,axis=0),120,1)
+ydata2=run_mean(np.var(x2x,axis=0),120,1)
+ydata3=run_mean(np.var(x3x,axis=0),120,1)
+ydata4=run_mean(np.var(x4x,axis=0),120,1)
+
+popt1,pcov1 = curve_fit(quad,xdata[:1000],ydata1[:1000])
+popt2,pcov2 = curve_fit(quad,xdata[:500],ydata2[:500])
+popt3,pcov3 = curve_fit(quad,xdata[:300],ydata3[:300])
+popt4,pcov4 = curve_fit(quad,xdata[:200],ydata4[:200])
+
+coefficients = [popt1[0],popt2[0],popt3[0], popt4[0]]
+ct = roundl(coefficients,6)
+
+plt.figure(figsize=(12,10))
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
+plt.plot(xdata,quad(xdata,*popt1),'r-', label = 'fit')
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,quad(xdata,*popt2),'m-', label = 'fit')
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,quad(xdata,*popt3),'b-', label = 'fit')
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,quad(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (12h,2) fitted to quadratic function')
+plt.xlabel ('time, hours')
+plt.ylim(-0.05,0.55)
+plt.xlim(-5,150)
+
+texttang = ''
+for i in ct:
+    texttang = texttang+str(i)+' : '
+texttang = texttang[:-3]
+plt.text(100,0,'The first coefficients of curves are\n' + texttang)
+#plt.yscale('log')
+plt.legend()
+plt.show()
+
+####### Fitting to the exponential
+
+####
+xdata=t[:3462]
+ydata1=run_mean(np.var(x1x,axis=0),120,1)
+ydata2=run_mean(np.var(x2x,axis=0),120,1)
+ydata3=run_mean(np.var(x3x,axis=0),120,1)
+ydata4=run_mean(np.var(x4x,axis=0),120,1)
+###
 popt1,pcov1 = curve_fit(expon,xdata,ydata1)
 popt2,pcov2 = curve_fit(expon,xdata,ydata2)
 popt3,pcov3 = curve_fit(expon,xdata,ydata3)
@@ -763,6 +885,21 @@ plt.xlabel ('time, hours')
 plt.legend()
 plt.show()
 
+#########
+plt.figure(figsize=(16,8))
+plt.plot (t[:3462], run_mean(phvar(x1)[0],120,1), label = 'sigma=0.5')
+plt.plot (t[:3462], run_mean(phvar(x2)[0],120,1), label = 'sigma=1')
+plt.plot (t[:3462], run_mean(phvar(x3)[0],120,1), label = 'sigma=1.5')
+plt.plot (t[:3462], run_mean(phvar(x4)[0],120,1), label = 'sigma=2')
+
+plt.ylabel ('Variance of phase of 1000 oscillators with running average (120,2)')
+plt.xlabel ('time, hours')
+#plt.yscale('log')
+#plt.xscale('log')
+
+plt.legend()
+plt.show()
+
 ###########
 FITTING TO:
 ###########
@@ -802,13 +939,53 @@ plt.xlabel ('time, hours')
 plt.legend()
 plt.show()
 
+
+###########
+ window(120,1) - better fit
+######
+xdata=t[:3462]
+ydata1=run_mean(phvar(x1)[0],120,1)
+ydata2=run_mean(phvar(x2)[0],120,1)
+ydata3=run_mean(phvar(x3)[0],120,1)
+ydata4=run_mean(phvar(x4)[0],120,1)
+
+popt1,pcov1 = curve_fit(lin,xdata[40:2000],ydata1[40:2000])
+popt2,pcov2 = curve_fit(lin,xdata[:800],ydata2[:800])
+popt3,pcov3 = curve_fit(lin,xdata[:700],ydata3[:700])
+popt4,pcov4 = curve_fit(lin,xdata[:500],ydata4[:500])
+
+plt.figure(figsize=(16,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
+plt.plot(xdata,lin(xdata,*popt1),'r-', label = 'fit')
+
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,lin(xdata,*popt2),'m-', label = 'fit')
+
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,lin(xdata,*popt3),'b-', label = 'fit')
+
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,lin(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of phase of 1000 oscillators with running average (120,2) fitted to linear function')
+plt.xlabel ('time, hours')
+plt.ylim(-50,3000)
+#plt.yscale('log')
+#plt.xscale('log')
+
+plt.legend()
+plt.show()
+
 ###################
 QUADRATIC
 
-popt1,pcov1 = curve_fit(quad,xdata,ydata1)
-popt2,pcov2 = curve_fit(quad,xdata,ydata2)
-popt3,pcov3 = curve_fit(quad,xdata,ydata3)
-popt4,pcov4 = curve_fit(quad,xdata,ydata4)
+###
+popt1,pcov1 = curve_fit(quad,xdata[:1500],ydata1[:1500])
+popt2,pcov2 = curve_fit(quad,xdata[:800],ydata2[:800])
+popt3,pcov3 = curve_fit(quad,xdata[:600],ydata3[:600])
+popt4,pcov4 = curve_fit(quad,xdata[:500],ydata4[:500])
+###
 
 
 plt.figure(figsize=(16,8))
@@ -832,6 +1009,48 @@ plt.xlabel ('time, hours')
 
 plt.legend()
 plt.show()
+
+####### 
+ window(120,1) - better fit
+######
+popt1,pcov1 = curve_fit(quad,xdata[:800],ydata1[:800])
+popt2,pcov2 = curve_fit(quad,xdata[:400],ydata2[:400])
+popt3,pcov3 = curve_fit(quad,xdata[:300],ydata3[:300])
+popt4,pcov4 = curve_fit(quad,xdata[:200],ydata4[:200])
+
+coefficients = [popt1[0],popt2[0],popt3[0], popt4[0]]
+ct = roundl(coefficients,4)
+
+plt.figure(figsize=(10,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5 data')
+plt.plot(xdata,quad(xdata,*popt1),'r-', label = 'fit')
+
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,quad(xdata,*popt2),'m-', label = 'fit')
+
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,quad(xdata,*popt3),'b-', label = 'fit')
+
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,quad(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of phase of 1000 oscillators with running average (120,2) fitted to quadratic function')
+plt.xlabel ('time, hours')
+plt.ylim(-50,3000)
+#plt.yscale('log')
+#plt.xscale('log')
+plt.xlim(-5,150)
+
+texttang = ''
+for i in ct:
+    texttang = texttang+str(i)+' : '
+texttang = texttang[:-3]
+plt.text(100,50,'The coefficients of curves are\n' + texttang)
+
+plt.legend()
+plt.show()
+
 
 ############
 EXPONENTIAL
@@ -865,6 +1084,14 @@ plt.xlabel ('time, hours')
 
 plt.legend()
 plt.show()
+
+#########
+
+#########
+popt1,pcov1 = curve_fit(expon,xdata[:1100],ydata1[:1100])
+popt2,pcov2 = curve_fit(expon,xdata[:500],ydata2[:500])
+popt3,pcov3 = curve_fit(expon,xdata[:400],ydata3[:400])
+popt4,pcov4 = curve_fit(expon,xdata[:300],ydata4[:300])
 #############################################
 #############################################
 """
@@ -961,11 +1188,36 @@ plt.show()
 
 
 """
+###################################################################################################################
+#################################################################################################################
+#################################################################################################################
 
-##########################################################################################################
-##########################################################################################################
 NOISY SYSTEM
-##########
+
+############################
+#################################
+######################################################
+
+x1=[[],[]]
+x2=[[],[]]
+x3=[[],[]]
+x4=[[],[]]
+
+x1[1] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.05 only solutions no time.npy")
+x2[1] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.1 only solutions no time.npy")
+x3[1] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.2 only solutions no time.npy")
+x4[1] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.5 only solutions no time.npy")
+
+x1[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.05 time.npy")
+x2[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.1 time.npy")
+x3[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.2 time.npy")
+x4[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.5 time.npy")
+
+
+#############
+#############
+#############
+
 
 n=2 
 params = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n) # alpha (amplitude relaxation rate), A (amplitude), omega, twist, K (coupling), E (white noise, if any)
@@ -1033,7 +1285,11 @@ plt.legend()
 """
 
 """
+
+
 #########################################################
+#########################################################
+
 STARTING TO WORK ON THE 1ST PIC
 
 GRAPH 1
@@ -1099,9 +1355,9 @@ plt.xlabel('time, hours')
 plt.ylabel('Envelope of the mean of 1000 oscillators with different noise intensities')
 plt.legend()
 
-#########
+#####
 
-######## Using some explicit shit - doesn't work that well as it slightly shifts the curve 
+##### Using some explicit shit - doesn't work that well as it slightly shifts the curve 
 plt.figure(figsize=(16,8))
 
 plt.plot(t[0:10743], run_mean(np.mean(x4x, axis=0), 30, 1), label='E=0.5 smoothened')
@@ -1113,7 +1369,7 @@ plt.ylabel('Mean of 1000 oscillators with different noise intensities')
 plt.legend()
 
 
-######### Only maxima after smoothing ! (HERE IS THE RIGHT EXPRESSION FOR THE MOST NOISY SIGNALS)
+##### Only maxima after smoothing ! (HERE IS THE RIGHT EXPRESSION FOR THE MOST NOISY SIGNALS)
 plt.figure(figsize=(16,8))
 m = me(run_mean(np.mean(x4x, axis=0), 30, 1))
 m1 = me(np.mean(x4x, axis=0))
@@ -1127,9 +1383,103 @@ plt.ylabel('Mean of 1000 oscillators with different noise intensities')
 plt.legend()
 
 
-#################
+##### FINAL MAXIMA
+
+plt.figure(figsize=(16,8))
+
+m4good = me(run_mean(np.mean(x4x, axis=0), 30, 1)) # Smoothened x4 data - E=0.5
+m1 = me(np.mean(x1x, axis=0))
+m2 = me(np.mean(x2x, axis=0))
+m3 = me(np.mean(x3x, axis=0))
+m4 = me(np.mean(x4x, axis=0))
+
+
+plt.plot(m1[0], m1[1],'o-', label = 'E=0.05')
+plt.plot(m2[0], m2[1],'o-', label = 'E=0.1')
+plt.plot(m3[0], m3[1],'o-', label = 'E=0.2')
+#plt.plot(m4[0], m4[1],'+', label = 'E=0.5 raw')
+plt.plot(m4good[0], m4good[1],'o-', label='E=0.5 smoothened (30,2), maxima') # This one performs better than anything else
+
+plt.xlabel('time, hours')
+plt.ylabel('Mean of 1000 oscillators with different noise intensities - maxima only')
+#plt.xlim(0,150)
+plt.legend()
+
+####################
+FITTING
+##########
+
+LIN (x)
+###########
+
+m4good = me(run_mean(np.mean(x4x, axis=0), 30, 1)) # Smoothened x4 data - E=0.5
+m1 = me(np.mean(x1x, axis=0))
+m2 = me(np.mean(x2x, axis=0))
+m3 = me(np.mean(x3x, axis=0))
+m4 = me(np.mean(x4x, axis=0))
+
+xdata1 = np.array(m1[0])
+ydata1 = np.array(m1[1])
+
+xdata2 = np.array(m2[0])
+ydata2 = np.array(m2[1])
+
+xdata3 = np.array(m3[0])
+ydata3 = np.array(m3[1])
+
+xdata4 = np.array(m4[0])
+ydata4 = np.array(m4[1])
+    
+#xydata = [xdata1,ydata1,xdata2,ydata2,xdata3,ydata3,xdata4,ydata4]  
+  
+
+popt1,pcov1 = curve_fit(lin,xdata1,ydata1)
+popt2,pcov2 = curve_fit(lin,xdata2[0:5],ydata2[0:5])
+popt3,pcov3 = curve_fit(lin,xdata3[0:4],ydata3[0:4])
+popt4,pcov4 = curve_fit(lin,xdata4[0:3],ydata4[0:3])
+
+tangents = [popt1[0],popt2[0],popt3[0], popt4[0]]
+nt = norm(tangents)
+rt = roundl(tangents,4)
+angles = slp2ang(tangents)
+
+
+plt.figure(figsize=(16,8))
+
+plt.plot(xdata1,ydata1, 'ro', label = 's=0.5 maxima')
+plt.plot(xdata1, lin(xdata1, *popt1), 'r--', label = 's=0.5 fit')
+
+plt.plot(xdata2,ydata2, 'mo', label = 's=1.0 maxima')
+plt.plot(xdata2, lin(xdata2, *popt2), 'm--', label = 's=1.0 fit')
+
+plt.plot(xdata3,ydata3, 'bo', label = 's=1.5 maxima')
+plt.plot(xdata3, lin(xdata3, *popt3),'b--', label = 's=1.5 fit')
+
+plt.plot(xdata4,ydata4, 'ko', label = 's=2.0 maxima')
+plt.plot(xdata4, lin(xdata4, *popt4), 'k--', label = 's=2.0 fit')
+
+plt.ylabel ('Maxima of mean(x-coordinate) of 1000 oscillators fitted to line')
+plt.xlabel ('time, hours')
+
+texttang = ''
+for i in rt:
+    texttang = texttang+str(i)+' : '
+texttang = texttang[:-3]
+#plt.text(1,1,'The slopes of curves are\n' + texttang)
+
+
+plt.ylim(-1.5,1.5)
+plt.xlim(10,160)
+plt.legend()
+
+
+
+
+
+
+#######################
     VAR (X-COORD)
-#############
+######################
 plt.figure(figsize=(16,8))
 
 plt.plot(t[0:x1[1].shape[0]], np.var(x1x, axis=0), label='E=0.05')
@@ -1159,6 +1509,13 @@ plt.xlabel ('time, hours')
 plt.legend()
 plt.show()
 
+###### Fitted to quadratic
+
+popt1,pcov1 = curve_fit(quad,xdata[:800],ydata1[:800])
+popt2,pcov2 = curve_fit(quad,xdata[:400],ydata2[:400])
+popt3,pcov3 = curve_fit(quad,xdata[:300],ydata3[:300])
+popt4,pcov4 = curve_fit(quad,xdata[:200],ydata4[:200])
+
 ########################
     VAR (PHASE)
 ##################
@@ -1174,9 +1531,21 @@ plt.xlabel('time, hours')
 plt.ylabel('Variance of phase of 1000 oscillators with different noise intensities')
 plt.legend()
 
+
 #######
 running_mean(var(phase))
 #######
+
+plt.figure(figsize=(16,8))
+
+plt.plot(t[:10562], run_mean(phvar(x1[1])[0], 240), label='E=0.05')
+plt.plot(t[:10562], run_mean(phvar(x2[1])[0], 240), label='E=0.1')
+plt.plot(t[:10562], run_mean(phvar(x3[1])[0], 240), label='E=0.2')
+plt.plot(t[:10562], run_mean(phvar(x4[1])[0], 240), label='E=0.5')
+
+plt.xlabel('time, hours')
+plt.ylabel('Variance of phase of 1000 oscillators with different noise intensities with running average (240,1)')
+plt.legend()
 
 
 
