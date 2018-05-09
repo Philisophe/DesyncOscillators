@@ -1626,32 +1626,64 @@ Picture creation
 x001 = odeint(oscillator_system, [1,0] , t001, args=(params001))
 
 fig, (ax1, ax2) = plt.subplots(2, sharey=True)
-
-#plt.figure(figsize = (7,5))
+ax1.grid()
 ax1.plot(t001,x001[:,0], label='')
-ax1.plot(t001[-30], x001[:,0][-30], 'o')
-ax1.set(title='A tale of 2 subplots', ylabel='x-coordinate (t)')
-#plt.ylabel('x-coordinate (t)')
-#plt.xlabel('t, hours')
-#plt.legend()
-#plt.show()
+ax1.plot(t001[359], x001[:,0][359], 'o')
+ax1.set(title='Time series for 2-dimentional oscillator', ylabel='x-coordinate (t)')
 
-#plt.figure(figsize = (7,5))
 ax2.plot(t001,x001[:,1], label='')
-ax2.plot(t001[-30], x001[:,1][-30], 'o')
-ax2.set(xlabel='time (s)',ylabel='y-coordinate (t)')
-#plt.ylabel('y-coordinate (t)')
-#plt.xlabel('t, hours')
-#plt.legend()
-#plt.show()
+ax2.plot(t001[359], x001[:,1][359], 'o')
+ax2.set(xlabel='time, hours',ylabel='y-coordinate (t)')
+ax2.grid()
+plt.show()
 
+###
 plt.figure(figsize = (7,7))
-plt.plot(x001[:,0],x001[:,1], label='')
-plt.plot(x001[:,0][-30],x001[:,1][-30],'o', label='')
+plt.plot(x001[:,0],x001[:,1], linewidth=1.5, label='limit cycle')
+plt.plot(x001[:,0][269],x001[:,1][269],'ro', label='state at 26.9h')
+plt.plot([0,x001[:,0][269]],[0,x001[:,1][269]], '-', linewidth=0.7, color="r", label='radius')
+plt.plot([-3,3],[0,0],'k-')
+plt.plot([0,0],[-3,3],'k-')
 plt.ylabel('y-coordinate (t)')
 plt.xlabel('x-coordinate (t)')
-plt.xlim(-1.2,1.2)
-plt.ylim(-1.2,1.2)
+plt.xlim(-1.5,1.5)
+plt.ylim(-1.5,1.5)
+plt.title('Phase plane plot')
+plt.text(0.6,0.85, '(0.71,0.69)\n 26.9h from (1,0)')
+plt.grid()
 plt.legend()
 plt.show()
+"""
+
+"""
+What if initial conditions matter?
+
+n=1000
+t5 = np.linspace(0,400,4000)
+state05 = [1,0]*n
+x51 = odeint(oscillator_system, state05, t5, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x52 = odeint(oscillator_system, state05, t5, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x53 = odeint(oscillator_system, state05, t5, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x54 = odeint(oscillator_system, state05, t5, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+
+x51x = sep(x51)[0]
+x52x = sep(x52)[0]
+x53x = sep(x53)[0]
+x54x = sep(x54)[0]
+
+
+# Same but noise
+n=1000
+t6 = np.linspace(0,600,600*20)
+state06 = [1,0]*n
+params6 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n)
+x61 = ode_rand3(n,t6,state06,params6,0.05)
+x62 = ode_rand3(n,t6,state06,params6,0.1)
+x63 = ode_rand3(n,t6,state06,params6,0.2)
+x64 = ode_rand3(n,t6,state06,params6,0.5)
+
+x61x = sep(x61[1])[0]
+x62x = sep(x62[1])[0]
+x63x = sep(x63[1])[0]
+x64x = sep(x64[1])[0]
 """
