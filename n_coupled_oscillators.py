@@ -1511,10 +1511,46 @@ plt.show()
 
 ###### Fitted to quadratic
 
-popt1,pcov1 = curve_fit(quad,xdata[:800],ydata1[:800])
-popt2,pcov2 = curve_fit(quad,xdata[:400],ydata2[:400])
-popt3,pcov3 = curve_fit(quad,xdata[:300],ydata3[:300])
-popt4,pcov4 = curve_fit(quad,xdata[:200],ydata4[:200])
+xdata=t[:10562]
+ydata1=run_mean(np.var(x1x,axis=0),240)
+ydata2=run_mean(np.var(x2x,axis=0),240)
+ydata3=run_mean(np.var(x3x,axis=0),240)
+ydata4=run_mean(np.var(x4x,axis=0),240)
+
+popt1,pcov1 = curve_fit(quad,xdata[:7000],ydata1[:7000])
+popt2,pcov2 = curve_fit(quad,xdata[:5000],ydata2[:5000])
+popt3,pcov3 = curve_fit(quad,xdata[:3000],ydata3[:3000])
+popt4,pcov4 = curve_fit(quad,xdata[:1000],ydata4[:1000])
+
+plt.figure(figsize=(16,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'E=0.05 data')
+plt.plot(xdata,quad(xdata,*popt1),'r-', label = 'fit')
+
+plt.plot (xdata, ydata2,'m--', label = 'E=0.1')
+plt.plot(xdata,quad(xdata,*popt2),'m-', label = 'fit')
+
+plt.plot (xdata, ydata3,'b--', label = 'E=0.2')
+plt.plot(xdata,quad(xdata,*popt3),'b-', label = 'fit')
+
+plt.plot (xdata, ydata4, 'k--', label = 'E=0.5')
+plt.plot(xdata,quad(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (12h,1) fitted to quadratic function')
+plt.xlabel ('time, hours')
+plt.ylim(-0.1,0.8)
+plt.xlim(-5,150)
+
+plt.legend()
+plt.show()
+
+
+######## Fitted to exponential
+
+popt1,pcov1 = curve_fit(expon,xdata[:7000],ydata1[:7000])
+popt2,pcov2 = curve_fit(expon,xdata[:5000],ydata2[:5000])
+popt3,pcov3 = curve_fit(expon,xdata[:3000],ydata3[:3000])
+popt4,pcov4 = curve_fit(expon,xdata[:1000],ydata4[:1000])
 
 ########################
     VAR (PHASE)
@@ -1559,3 +1595,63 @@ plt.legend()
 
 
 
+
+
+
+
+
+
+
+"""
+#
+Power spectra
+#
+ps = np.abs(np.fft.fft(x4x[0]))**2 # Power spectra computing
+time_step = 1/20 # Inverse of the maximal possible frequency (sampling rate, in case of noisy system - 20 times/1.0, so 20Hz)
+freqs = np.fft.fftfreq(x4x[0].size, time_step)
+idx = np.argsort(freqs)
+plt.figure(figsize=(20,8))
+plt.plot(freqs[idx], ps[idx])
+plt.xlabel('Frequency')
+plt.ylabel('Power')
+plt.title('Power spectrum density')
+plt.legend()
+
+"""
+
+
+"""
+Picture creation
+
+x001 = odeint(oscillator_system, [1,0] , t001, args=(params001))
+
+fig, (ax1, ax2) = plt.subplots(2, sharey=True)
+
+#plt.figure(figsize = (7,5))
+ax1.plot(t001,x001[:,0], label='')
+ax1.plot(t001[-30], x001[:,0][-30], 'o')
+ax1.set(title='A tale of 2 subplots', ylabel='x-coordinate (t)')
+#plt.ylabel('x-coordinate (t)')
+#plt.xlabel('t, hours')
+#plt.legend()
+#plt.show()
+
+#plt.figure(figsize = (7,5))
+ax2.plot(t001,x001[:,1], label='')
+ax2.plot(t001[-30], x001[:,1][-30], 'o')
+ax2.set(xlabel='time (s)',ylabel='y-coordinate (t)')
+#plt.ylabel('y-coordinate (t)')
+#plt.xlabel('t, hours')
+#plt.legend()
+#plt.show()
+
+plt.figure(figsize = (7,7))
+plt.plot(x001[:,0],x001[:,1], label='')
+plt.plot(x001[:,0][-30],x001[:,1][-30],'o', label='')
+plt.ylabel('y-coordinate (t)')
+plt.xlabel('x-coordinate (t)')
+plt.xlim(-1.2,1.2)
+plt.ylim(-1.2,1.2)
+plt.legend()
+plt.show()
+"""
