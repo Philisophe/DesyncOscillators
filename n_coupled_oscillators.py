@@ -255,7 +255,9 @@ def npremdup(x):
 
 
 def extr(x):
-    """Finds the extrema of the function. Returns [timepoints of extrema, values of extrema] list"""
+    """Finds the extrema of the function. Returns [timepoints of extrema, values of extrema] list.
+    
+    Very poorly deals with data on the borders"""
     diff = np.diff(np.sign(np.diff(x)))
     extrT=[]
     extrVal=[]
@@ -263,11 +265,14 @@ def extr(x):
         if diff[i]!=0:
             extrVal.append(np.mean(x[i:i+2]))
             extrT.append(np.mean(t[i:i+2]))
+    if x[0]>x[1]:
+        extrVal.insert(0, x[0])
+        extrT.insert(0,t[0])
     return [extrT,extrVal]
 
 
 def maxs(list_extr):
-    """Returns every odd element. Designed to be used in combination with extr(), e.g. maxs(extr(solutions))"""
+    #Returns every odd element. Designed to be used in combination with extr(), e.g. maxs(extr(solutions))
     maxsV=[]
     maxsT=[]
     for i in range(int(len(list_extr[0])/2)):
@@ -276,8 +281,23 @@ def maxs(list_extr):
     return [maxsT,maxsV]
 
 
+def maxs2(list_extr):
+    """Returns maxima in the form [values,timepoints]. 
+    Designed to be used in combination with extr(), e.g. maxs(extr(solutions)).
+    
+    Use only with oscillatory functions. Expects input to be list
+    
+    np.argpartition() works not like you expect to! """
+    
+        
+    l = int(len(list_extr[0])/2) # l is total number of extrema/2. In other words, for even number of extrema its number of maxima or minima.
+    ind = np.argpartition(list_extr[1], -l)[-l:] # Extract indices of the first "l" extrema (they will be maxima) out of the extrVal
+    return [np.array(list_extr[0])[ind], np.array(list_extr[1])[ind]]
+
+
 def me(x):
     return maxs(extr(x))
+
 def me2(x):
     """Returns maxs(extr(np.mean(x,axis=0))).
     In other words - maxima of mean of x as a list [times, values]"""
@@ -1213,6 +1233,10 @@ x2[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscilla
 x3[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.2 time.npy")
 x4[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/1000 oscillators with E 0.5 time.npy")
 
+x1x = sep(x1[1])[0]
+x2x = sep(x2[1])[0]
+x3x = sep(x3[1])[0]
+x4x = sep(x4[1])[0]
 
 #############
 #############
@@ -1403,6 +1427,37 @@ plt.plot(m4good[0], m4good[1],'o-', label='E=0.5 smoothened (30,2), maxima') # T
 plt.xlabel('time, hours')
 plt.ylabel('Mean of 1000 oscillators with different noise intensities - maxima only')
 #plt.xlim(0,150)
+plt.legend()
+
+
+
+####### Final-final MAXIMA (not the best one, though, very strange results)
+
+plt.figure(figsize=(16,8))
+e1 = extr(np.mean(x61x, axis=0))
+e2 = extr(np.mean(x62x, axis=0))
+e3 = extr(np.mean(x63x, axis=0))
+e4 = extr(np.mean(x64x, axis=0))
+m1 = maxs2(e1)
+m2 = maxs2(e2)
+m3 = maxs2(e3)
+m4 = maxs2(e4)
+plt.plot(x61[0],np.mean(x61x, axis=0), label='mean')
+plt.plot(x62[0],np.mean(x62x, axis=0), label='mean')
+plt.plot(x63[0],np.mean(x63x, axis=0), label='mean')
+plt.plot(x64[0],np.mean(x64x, axis=0), label='mean')
+#plt.plot(e1[0],e1[1], 'o',label='extrema')
+#plt.plot(m1[0],m1[1],'+',label='maxima')
+for i in [e1,e2,e3,e4]:
+    plt.plot(i[0],i[1],'o', label='extrema')
+for i in [m1,m2,m3,m4]:
+    plt.plot(i[0],i[1],'+', label = 'maxima')
+
+
+plt.xlabel('time, hours')
+plt.ylabel('Mean of 1000 oscillators with different noise intensities - maxima only')
+#plt.xlim(0,150)
+plt.title('Mean(x), extrema and maxima')
 plt.legend()
 
 ####################
