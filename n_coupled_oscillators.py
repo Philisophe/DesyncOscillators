@@ -265,9 +265,6 @@ def extr(x):
         if diff[i]!=0:
             extrVal.append(np.mean(x[i:i+2]))
             extrT.append(np.mean(t[i:i+2]))
-    if x[0]>x[1]:
-        extrVal.insert(0, x[0])
-        extrT.insert(0,t[0])
     return [extrT,extrVal]
 
 
@@ -293,6 +290,22 @@ def maxs2(list_extr):
     l = int(len(list_extr[0])/2) # l is total number of extrema/2. In other words, for even number of extrema its number of maxima or minima.
     ind = np.argpartition(list_extr[1], -l)[-l:] # Extract indices of the first "l" extrema (they will be maxima) out of the extrVal
     return [np.array(list_extr[0])[ind], np.array(list_extr[1])[ind]]
+
+
+def maxs3(list_extr):
+    """Returns maxima in the form [values,timepoints]. 
+    Takes every odd element. Designed to be used in combination with extr(), e.g. maxs(extr(solutions))
+    
+    Adds the initial conditions t=0 and x(t=0)=1 in the beginning of the the lists
+    VERY CRUDE METHOD, use only with oscillatory functions, starting with initial conditions [1,0] at time t=0."""
+    maxsV=[]
+    maxsT=[]
+    for i in range(int(len(list_extr[0])/2)):
+        maxsV.append(list_extr[1][i*2 + 1])
+        maxsT.append(list_extr[0][i*2 + 1])
+    maxsT.insert(0,0) # But I can hardware it as 0
+    maxsV.insert(0,1)
+    return [maxsT,maxsV]
 
 
 def me(x):
@@ -481,8 +494,26 @@ n = int(len(state0) / 2) # Number of oscillators
 
 
 
+"""
+##############################
+# STARTING THE ENGINE
+#############################
+n = 1000
+t = np.linspace(0, 400, 4000)
+state0 = [1,0]*n
+
+x1 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 0.5 and state0 [1,0].npy")
+x2 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 1 and state0 [1,0].npy")
+x3 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 1.5 and state0 [1,0].npy")
+x4 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 2 and state0 [1,0].npy")
+
+x1x = sep(x1)[0]
+x2x = sep(x2)[0]
+x3x = sep(x3)[0]
+x4x = sep(x4)[0]
 
 
+"""
 
 
 
@@ -548,7 +579,7 @@ plt.legend()
 ############
  ONLY MAXIMA FROM MEAN(X)
 ###########
-
+plt.figure(figsize=(20,8))
 plt.plot(t,np.mean(x1x,axis=0), label="sigma 0.5")
 plt.plot(t,np.mean(x2x,axis=0), label="sigma 1.0")
 plt.plot(t,np.mean(x3x,axis=0), label="sigma 1.5")
@@ -688,10 +719,10 @@ plt.show()
 # 12h as a window
 plt.figure(figsize=(20,8))
 
-plt.plot (t[:3462], run_mean(np.var(x1x,axis=0),120,1), label = 'sigma=0.5')
-plt.plot (t[:3462], run_mean(np.var(x2x,axis=0),120,1), label = 'sigma=1')
-plt.plot (t[:3462], run_mean(np.var(x3x,axis=0),120,1), label = 'sigma=1.5')
-plt.plot (t[:3462], run_mean(np.var(x4x,axis=0),120,1), label = 'sigma=2')
+plt.plot (t[:3762], run_mean(np.var(x1x,axis=0),120,1), label = 'sigma=0.5')
+plt.plot (t[:3762], run_mean(np.var(x2x,axis=0),120,1), label = 'sigma=1')
+plt.plot (t[:3762], run_mean(np.var(x3x,axis=0),120,1), label = 'sigma=1.5')
+plt.plot (t[:3762], run_mean(np.var(x4x,axis=0),120,1), label = 'sigma=2')
 
 plt.ylabel ('Variance of x-coordinate of 1000 oscillators with running average (72,4)')
 plt.xlabel ('time, hours')
