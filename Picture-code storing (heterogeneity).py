@@ -18,6 +18,9 @@ DEVOTED TO PLOTTING, USING FUNCTIONS FROM n_coupled_oscillators.py
 n = 1000
 t = np.linspace(0, 400, 4000)
 state0 = [1,0]*n
+# Example of the execution:
+# x51 = odeint(oscillator_system, state05, t5, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+
 
 x1 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 0.5 and state0 [1,0].npy")
 x2 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 1 and state0 [1,0].npy")
@@ -100,16 +103,12 @@ plt.legend()
 
 xdata1 = np.array(me4(np.mean(x1x, axis=0))[0])
 ydata1 = np.array(me4(np.mean(x1x, axis=0))[1])
-
 xdata2 = np.array(me4(np.mean(x2x, axis=0))[0])
 ydata2 = np.array(me4(np.mean(x2x, axis=0))[1])
-
 xdata3 = np.array(me4(np.mean(x3x, axis=0))[0])
 ydata3 = np.array(me4(np.mean(x3x, axis=0))[1])
-
 xdata4 = np.array(me4(np.mean(x4x, axis=0))[0])
 ydata4 = np.array(me4(np.mean(x4x, axis=0))[1])
-
 
 popt1,pcov1 = curve_fit(lin,xdata1[3:10],ydata1[3:10])
 popt2,pcov2 = curve_fit(lin,xdata2[2:8],ydata2[2:8])
@@ -118,6 +117,14 @@ popt4,pcov4 = curve_fit(lin,xdata4[1:4],ydata4[1:4])
 tangents = [popt1[0],popt2[0],popt3[0], popt4[0]]
 rt = roundl(tangents,4)
 nt = roundl((rt/rt[0]).tolist(),4)
+
+# R-squared metric
+rsq = []
+rsq.append(r_sq(lin,xdata1[3:10],ydata1[3:10],popt1))
+rsq.append(r_sq(lin,xdata2[2:8],ydata2[2:8],popt2))
+rsq.append(r_sq(lin,xdata3[1:5],ydata3[1:5],popt3))
+rsq.append(r_sq(lin,xdata4[1:4],ydata4[1:4],popt4))
+
 
 plt.figure(figsize=(11,8))
 
@@ -178,10 +185,11 @@ plt.plot (t, np.var(x2x,axis=0), label = 'sigma=1')
 plt.plot (t, np.var(x3x,axis=0), label = 'sigma=1.5')
 plt.plot (t, np.var(x4x,axis=0), label = 'sigma=2')
 
-plt.ylabel ('Variance of x-coordinate of 1000 oscillators')
+plt.ylabel ('x-coordinate variance')
 plt.xlabel ('time, hours')
 
 plt.ylim(-0.05,0.65)
+plt.title ('Variance of x-coordinate of 1000 heterogenous oscillators (raw)', fontsize=16)
 plt.legend()
 plt.show()
 
@@ -202,7 +210,7 @@ plt.plot (t[:3762], run_mean(np.var(x2x,axis=0),120,1), 'b-', label = 'sigma=1')
 plt.plot (t[:3762], run_mean(np.var(x3x,axis=0),120,1), 'm-', label = 'sigma=1.5')
 plt.plot (t[:3762], run_mean(np.var(x4x,axis=0),120,1), 'r-', label = 'sigma=2')
 
-plt.ylabel ('x-coordinate')
+plt.ylabel ('x-coordinate variance')
 plt.xlabel ('time, hours')
 plt.title ('Variance of x-coordinate of 1000 heterogenous oscillators (smoothened)', fontsize=16)
 plt.xlim(-10,250)
@@ -238,7 +246,7 @@ plt.plot(xdata,quad(xdata,*popt3),'m-', label = 'fit')
 plt.plot (xdata, ydata4, 'r--', label = 'sigma=2')
 plt.plot(xdata,quad(xdata,*popt4),'r-', label = 'fit')
 
-plt.ylabel ('x-coordinate')
+plt.ylabel ('x-coordinate variance')
 plt.xlabel ('time, hours')
 plt.ylim(-0.05,0.55)
 plt.xlim(-5,150)

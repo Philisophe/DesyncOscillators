@@ -423,6 +423,15 @@ def slp2ang(x):
     """Converts slope of the linear function to angles"""
     return list(map(lambda x:np.rad2deg(np.arctan(x)),x))
 
+def r_sq(function, xdata, ydata, popt):
+    """Computes R^2 statistical metric using 'popt' parameter from scipy.optimize.curve_fit() function.
+    The formula it uses is:
+        r_squared = 1 - (residual sum of squares/total sum of squares)"""
+    residuals = ydata - function(xdata,*popt)
+    ss_res = np.sum(residuals**2)
+    ss_tot = np.sum((ydata-np.mean(ydata))**2)
+    return (1-(ss_res/ss_tot))
+
 """
 ###################################################################################################################################
 HERE THE CODE THAT DEFINES THE NECESSARY FUNCTIONS STOPPS
