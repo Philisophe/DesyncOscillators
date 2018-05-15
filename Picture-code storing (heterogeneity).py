@@ -160,9 +160,16 @@ plt.title('Mean (x-coordinate) of 1000 heterogenous oscillators fitted to the li
 plt.legend()
 
 
-##################################
-######  VAR (X)
 
+
+
+
+
+
+
+##############################
+######  VAR (X)
+###########
 
 plt.figure(figsize=(16,8))
 
@@ -190,10 +197,10 @@ plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
 plt.rc('legend', fontsize=11.5)    # legend fontsize
 plt.rc('figure', titlesize=15)  # fontsize of the figure title
 
-plt.plot (t[:3762], run_mean(np.var(x1x,axis=0),120,1), label = 'sigma=0.5')
-plt.plot (t[:3762], run_mean(np.var(x2x,axis=0),120,1), label = 'sigma=1')
-plt.plot (t[:3762], run_mean(np.var(x3x,axis=0),120,1), label = 'sigma=1.5')
-plt.plot (t[:3762], run_mean(np.var(x4x,axis=0),120,1), label = 'sigma=2')
+plt.plot (t[:3762], run_mean(np.var(x1x,axis=0),120,1), 'k-', label = 'sigma=0.5')
+plt.plot (t[:3762], run_mean(np.var(x2x,axis=0),120,1), 'b-', label = 'sigma=1')
+plt.plot (t[:3762], run_mean(np.var(x3x,axis=0),120,1), 'm-', label = 'sigma=1.5')
+plt.plot (t[:3762], run_mean(np.var(x4x,axis=0),120,1), 'r-', label = 'sigma=2')
 
 plt.ylabel ('x-coordinate')
 plt.xlabel ('time, hours')
@@ -222,14 +229,14 @@ coefficients = [popt1[0],popt2[0],popt3[0], popt4[0]]
 ct = roundl(coefficients,6)
 
 plt.figure(figsize=(12,10))
-plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5')
-plt.plot(xdata,quad(xdata,*popt1),'r-', label = 'fit')
-plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
-plt.plot(xdata,quad(xdata,*popt2),'m-', label = 'fit')
-plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
-plt.plot(xdata,quad(xdata,*popt3),'b-', label = 'fit')
-plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
-plt.plot(xdata,quad(xdata,*popt4),'k-', label = 'fit')
+plt.plot (xdata, ydata1, 'k--',label = 'sigma=0.5')
+plt.plot(xdata,quad(xdata,*popt1),'k-', label = 'fit')
+plt.plot (xdata, ydata2,'b--', label = 'sigma=1')
+plt.plot(xdata,quad(xdata,*popt2),'b-', label = 'fit')
+plt.plot (xdata, ydata3,'m--', label = 'sigma=1.5')
+plt.plot(xdata,quad(xdata,*popt3),'m-', label = 'fit')
+plt.plot (xdata, ydata4, 'r--', label = 'sigma=2')
+plt.plot(xdata,quad(xdata,*popt4),'r-', label = 'fit')
 
 plt.ylabel ('x-coordinate')
 plt.xlabel ('time, hours')
@@ -245,6 +252,174 @@ plt.text(100,0,'The first coefficients of curves are\n' + texttang)
 plt.title('Variance (x-coordinate) of 1000 heterogenous oscillators fitted to quadratic', fontsize=16)
 plt.legend()
 plt.show()
+
+
+
+
+
+
+
+
+
+################
+######### VAR (PHASE)
+################
+
+plt.figure(figsize=(16,8))
+plt.plot (t, phvar(x1)[0],'k-', label = 'sigma=0.5')
+plt.plot (t, phvar(x2)[0],'b-', label = 'sigma=1')
+plt.plot (t, phvar(x3)[0],'m-', label = 'sigma=1.5')
+plt.plot (t, phvar(x4)[0],'r-', label = 'sigma=2')
+
+plt.ylabel ('Variance of phase')
+plt.xlabel ('time, hours')
+plt.title('Variance of phase of 1000 heterogenous oscillators', fontsize=16)
+plt.legend()
+plt.show()
+
+###### run_mean(VAR (PHASE))
+
+plt.figure(figsize=(16,8))
+plt.plot (t[:3762], run_mean(phvar(x1)[0],120,1),'k-', label = 'sigma=0.5')
+plt.plot (t[:3762], run_mean(phvar(x2)[0],120,1),'b-', label = 'sigma=1')
+plt.plot (t[:3762], run_mean(phvar(x3)[0],120,1),'m-', label = 'sigma=1.5')
+plt.plot (t[:3762], run_mean(phvar(x4)[0],120,1),'r-', label = 'sigma=2')
+
+plt.ylabel ('Variance of phase')
+plt.xlabel ('time, hours')
+plt.title('Variance of phase of 1000 heterogenous oscillators (smoothened)', fontsize=16)
+plt.legend()
+plt.show()
+
+
+#####################
+##### FITTING TO LINEAR
+xdata=t[:3762]
+ydata1=run_mean(phvar(x1)[0],120,1)
+ydata2=run_mean(phvar(x2)[0],120,1)
+ydata3=run_mean(phvar(x3)[0],120,1)
+ydata4=run_mean(phvar(x4)[0],120,1)
+
+popt1,pcov1 = curve_fit(lin,xdata[40:2000],ydata1[40:2000])
+popt2,pcov2 = curve_fit(lin,xdata[:800],ydata2[:800])
+popt3,pcov3 = curve_fit(lin,xdata[:700],ydata3[:700])
+popt4,pcov4 = curve_fit(lin,xdata[:500],ydata4[:500])
+tangents = [popt1[0],popt2[0],popt3[0], popt4[0]]
+rt = roundl(tangents,3)
+nt = roundl((rt/rt[0]).tolist(),3)
+
+plt.figure(figsize=(16,8))
+
+plt.plot (xdata, ydata1, 'k--',label = 'sigma=0.5 data')
+plt.plot(xdata,lin(xdata,*popt1),'k-', label = 'fit')
+plt.plot (xdata, ydata2,'b--', label = 'sigma=1')
+plt.plot(xdata,lin(xdata,*popt2),'b-', label = 'fit')
+plt.plot (xdata, ydata3,'m--', label = 'sigma=1.5')
+plt.plot(xdata,lin(xdata,*popt3),'m-', label = 'fit')
+plt.plot (xdata, ydata4, 'r--', label = 'sigma=2')
+plt.plot(xdata,lin(xdata,*popt4),'r-', label = 'fit')
+
+plt.ylabel ('Variance of phase')
+plt.xlabel ('time, hours')
+plt.ylim(-50,3000)
+
+texttang = ''
+texttang2 = ''
+for i in rt:
+    texttang = texttang+str(i)+' : '
+for i in nt:
+    texttang2 = texttang2+str(i)+' : '
+texttang = texttang[:-3]
+texttang2 = texttang2[:-3]
+plt.text(200,1000,'Slopes\n' + texttang)
+plt.text(200,500,'Normalized\n' + texttang2)
+
+plt.title ('Variance of phase of 1000 heterogenous oscillators (smoothened) fitted to linear function', fontsize=16)
+plt.legend()
+plt.show()
+
+
+##################
+######  FITTING TO QUAD
+###########
+
+xdata=t[:3762]
+ydata1=run_mean(phvar(x1)[0],120,1)
+ydata2=run_mean(phvar(x2)[0],120,1)
+ydata3=run_mean(phvar(x3)[0],120,1)
+ydata4=run_mean(phvar(x4)[0],120,1)
+
+popt1,pcov1 = curve_fit(quad,xdata[:800],ydata1[:800])
+popt2,pcov2 = curve_fit(quad,xdata[:400],ydata2[:400])
+popt3,pcov3 = curve_fit(quad,xdata[:300],ydata3[:300])
+popt4,pcov4 = curve_fit(quad,xdata[:200],ydata4[:200])
+
+coefficients = [popt1[0],popt2[0],popt3[0], popt4[0]]
+ct = roundl(coefficients,3)
+
+plt.figure(figsize=(12,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5')
+plt.plot(xdata,quad(xdata,*popt1),'r-', label = 'fit')
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,quad(xdata,*popt2),'m-', label = 'fit')
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,quad(xdata,*popt3),'b-', label = 'fit')
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,quad(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of phase')
+plt.xlabel ('time, hours')
+plt.ylim(-50,3000)
+#plt.yscale('log')
+#plt.xscale('log')
+plt.xlim(-5,150)
+
+texttang = ''
+for i in ct:
+    texttang = texttang+str(i)+' : '
+texttang = texttang[:-3]
+plt.text(60,50,'The coefficients of curves are\n' + texttang)
+plt.title ('Variance of phase of 1000 heterogenous oscillators (smoothened) fitted to quadratic', fontsize=16)
+plt.legend()
+plt.show()
+
+
+#########
+EXPONENTIAL
+#########
+
+popt1,pcov1 = curve_fit(expon,xdata,ydata1,maxfev=10000)
+popt2,pcov2 = curve_fit(expon,xdata,ydata2,maxfev=10000)
+popt3,pcov3 = curve_fit(expon,xdata,ydata3,maxfev=10000)
+popt4,pcov4 = curve_fit(expon,xdata,ydata4,maxfev=10000)
+
+plt.figure(figsize=(12,8))
+
+plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5')
+plt.plot(xdata,expon(xdata,*popt1),'r-', label = 'fit')
+plt.plot (xdata, ydata2,'m--', label = 'sigma=1')
+plt.plot(xdata,expon(xdata,*popt2),'m-', label = 'fit')
+plt.plot (xdata, ydata3,'b--', label = 'sigma=1.5')
+plt.plot(xdata,expon(xdata,*popt3),'b-', label = 'fit')
+plt.plot (xdata, ydata4, 'k--', label = 'sigma=2')
+plt.plot(xdata,expon(xdata,*popt4),'k-', label = 'fit')
+
+plt.ylabel ('Variance of phase')
+plt.xlabel ('time, hours')
+plt.ylim(-50,3000)
+#plt.yscale('log')
+#plt.xscale('log')
+#plt.xlim(-5,150)
+
+plt.title ('Variance of phase of 1000 heterogenous oscillators (smoothened) fitted to exponential', fontsize=16)
+plt.legend()
+plt.show()
+
+
+
+
+
 
 
 """
