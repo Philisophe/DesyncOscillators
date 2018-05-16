@@ -30,6 +30,29 @@ x2[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/Other state0
 x3[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/Other state0/1000 oscillators with E 0.2 and state0 [1,0] time.npy")
 x4[0] = np.load("/home/kalashnikov/Code/Variables for my code/Noise/Other state0/1000 oscillators with E 0.5 and state0 [1,0] time.npy")
 
+############
+FOR PHASE-data
+####
+n=1000
+t6 = np.linspace(0,600,600*20)
+state06 = [1,0]*n
+params6 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n)
+x61 = ode_rand3(n,t6,state06,params6,0.05)
+x62 = ode_rand3(n,t6,state06,params6,0.1)
+x63 = ode_rand3(n,t6,state06,params6,0.2)
+x64 = ode_rand3(n,t6,state06,params6,0.5)
+############
+np.save("/home/kalashnikov/Code/Variables for my code/2nd attempt/1000 oscillators with E 0.05 and state0 [1,0]",x61[1])
+np.save("/home/kalashnikov/Code/Variables for my code/1000 oscillators with E 0.05 and state0 [1,0] v2",x61[1])
+np.save("/home/kalashnikov/Code/Variables for my code/1000 oscillators with E 0.1 and state0 [1,0] v2",x62[1])
+np.save("/home/kalashnikov/Code/Variables for my code/1000 oscillators with E 0.2 and state0 [1,0] v2",x63[1])
+np.save("/home/kalashnikov/Code/Variables for my code/1000 oscillators with E 0.5 and state0 [1,0] v2",x64[1])
+x1 = x61
+x2 = x62
+x3 = x63
+x4 = x64
+
+###########
 
 #x1x = sep(x1[1])[0]
 #x2x = sep(x2[1])[0]
@@ -488,11 +511,11 @@ plt.show()
 
 
 
-##############################################
-#########################################
-####################################        VAR (phase)
-################################
-############################
+##########################################################
+#################################################
+###########################################        VAR (phase)
+#####################################
+#################################
 
 plt.figure(figsize=(16,8))
 
@@ -501,10 +524,10 @@ ph2 = phvar(x2[1])[0]
 ph3 = phvar(x3[1])[0]
 ph4 = phvar(x4[1])[0]
 
-plt.plot(x1[0], ph1, label='E=0.05')
-plt.plot(x2[0], ph2, label='E=0.1')
-plt.plot(x3[0], ph3, label='E=0.2')
-plt.plot(x4[0], ph4, label='E=0.5')
+plt.plot(x1[0], ph1, 'k-', label='E=0.05')
+plt.plot(x2[0], ph2, 'b-', label='E=0.1')
+plt.plot(x3[0], ph3, 'm-', label='E=0.2')
+plt.plot(x4[0], ph4, 'r-', label='E=0.5')
 
 plt.xlabel('time, hours')
 plt.ylabel('Phase variance')
@@ -515,16 +538,169 @@ plt.legend()
 
 plt.figure(figsize=(16,8))
 
-plt.plot(x1[0][:10562], run_mean(ph1, 240), label='E=0.05')
-plt.plot(x2[0][:10562], run_mean(ph2, 240), label='E=0.1')
-plt.plot(x3[0][:10562], run_mean(ph3, 240), label='E=0.2')
-plt.plot(x4[0][:10562], run_mean(ph4, 240), label='E=0.5')
+plt.plot(x1[0][:10562], run_mean(ph1, 240), 'k-', label='E=0.05')
+plt.plot(x2[0][:10562], run_mean(ph2, 240), 'b-', label='E=0.1')
+plt.plot(x3[0][:10562], run_mean(ph3, 240), 'm-', label='E=0.2')
+plt.plot(x4[0][:10562], run_mean(ph4, 240), 'r-', label='E=0.5')
 
 plt.xlabel('time, hours')
 plt.ylabel('Phase variance')
 plt.title('Variance of phase of 1000 oscillators with different noise intensities', fontsize=16)
 plt.legend()
 
+
+
+##########
+#### LINE FIT
+########
+
+xdata1 = np.array(x1[0][:10562])
+xdata2 = np.array(x2[0][:10562])
+xdata3 = np.array(x3[0][:10562])
+xdata4 = np.array(x4[0][:10562])
+
+ydata1 = run_mean(ph1, 240)
+ydata2 = run_mean(ph2, 240)
+ydata3 = run_mean(ph3, 240)
+ydata4 = run_mean(ph4, 240)
+
+popt1,pcov1 = curve_fit(lin,xdata1[:6000],ydata1[:6000], maxfev=10000)
+popt2,pcov2 = curve_fit(lin,xdata2[:3000],ydata2[:3000], maxfev=10000)
+popt3,pcov3 = curve_fit(lin,xdata3[:700],ydata3[:700], maxfev=10000)
+popt4,pcov4 = curve_fit(lin,xdata4[:300],ydata4[:300], maxfev=10000)
+
+plt.figure(figsize=(16,8))
+plt.rc('font', size=12)          # controls default text sizes
+plt.rc('axes', titlesize=12)     # fontsize of the axes title
+plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
+plt.rc('legend', fontsize=12)    # legend fontsize
+plt.rc('figure', titlesize=16)  # fontsize of the figure title
+
+plt.plot(xdata1,ydata1, 'k--', label = 'E=0.05')
+plt.plot(xdata1, lin(xdata1, *popt1), 'k-', label = 'E=0.05 fit')
+plt.plot(xdata2,ydata2, 'b--', label = 'E=0.1')
+plt.plot(xdata2, lin(xdata2, *popt2), 'b-', label = 'E=0.1 fit')
+plt.plot(xdata3,ydata3, 'm--', label = 'E=0.2')
+plt.plot(xdata3, lin(xdata3, *popt3),'m-', label = 'E=0.2 fit')
+plt.plot(xdata4,ydata4, 'r--', label = 'E=0.5')
+plt.plot(xdata4, lin(xdata4, *popt4), 'r-', label = 'E=0.5 fit')
+
+plt.xlabel('time, hours')
+plt.ylabel('Phase variance')
+plt.xlim(-20,350)
+plt.ylim(-100,2800)
+plt.title('Variance of phase of 1000 noisy oscillators fitted to line', fontsize=16)
+plt.legend(loc=1)
+
+
+#########
+### QUADRATIC
+####
+
+xdata1 = np.array(x1[0][:10562])
+xdata2 = np.array(x2[0][:10562])
+xdata3 = np.array(x3[0][:10562])
+xdata4 = np.array(x4[0][:10562])
+
+ydata1 = run_mean(ph1, 240)
+ydata2 = run_mean(ph2, 240)
+ydata3 = run_mean(ph3, 240)
+ydata4 = run_mean(ph4, 240)
+
+popt1,pcov1 = curve_fit(quad,xdata1[:6000],ydata1[:6000], maxfev=10000)
+popt2,pcov2 = curve_fit(quad,xdata2[:3000],ydata2[:3000], maxfev=10000)
+popt3,pcov3 = curve_fit(quad,xdata3[:700],ydata3[:700], maxfev=10000)
+popt4,pcov4 = curve_fit(quad,xdata4[:300],ydata4[:300], maxfev=10000)
+
+plt.figure(figsize=(16,8))
+plt.rc('font', size=12)          # controls default text sizes
+plt.rc('axes', titlesize=12)     # fontsize of the axes title
+plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
+plt.rc('legend', fontsize=12)    # legend fontsize
+plt.rc('figure', titlesize=16)  # fontsize of the figure title
+
+plt.plot(xdata1,ydata1, 'k--', label = 'E=0.05')
+plt.plot(xdata1, quad(xdata1, *popt1), 'k-', label = 'E=0.05 fit')
+plt.plot(xdata2,ydata2, 'b--', label = 'E=0.1')
+plt.plot(xdata2, quad(xdata2, *popt2), 'b-', label = 'E=0.1 fit')
+plt.plot(xdata3,ydata3, 'm--', label = 'E=0.2')
+plt.plot(xdata3, quad(xdata3, *popt3),'m-', label = 'E=0.2 fit')
+plt.plot(xdata4,ydata4, 'r--', label = 'E=0.5')
+plt.plot(xdata4, quad(xdata4, *popt4), 'r-', label = 'E=0.5 fit')
+
+plt.xlabel('time, hours')
+plt.ylabel('Phase variance')
+plt.xlim(-20,350)
+plt.ylim(-100,2800)
+plt.title('Variance of phase of 1000 noisy oscillators fitted to quadratic', fontsize=16)
+plt.legend(loc=1)
+
+
+
+########################
+
+EXPONENTIAL
+
+#######################
+
+xdata1 = np.array(x1[0][:10562])
+xdata2 = np.array(x2[0][:10562])
+xdata3 = np.array(x3[0][:10562])
+xdata4 = np.array(x4[0][:10562])
+
+ydata1 = run_mean(ph1, 240)
+ydata2 = run_mean(ph2, 240)
+ydata3 = run_mean(ph3, 240)
+ydata4 = run_mean(ph4, 240)
+
+#popt1,pcov1 = curve_fit(expon, xdata1[:6000], ydata1[:6000], maxfev=10000)
+#popt2,pcov2 = curve_fit(expon, xdata2[:3000], ydata2[:3000], maxfev=10000)
+#popt3,pcov3 = curve_fit(expon, xdata3[:700], ydata3[:700], maxfev=10000)
+#popt4,pcov4 = curve_fit(expon, xdata4[:300], ydata4[:300], maxfev=10000)
+
+popt1 = [-4838.26, 0.000317081, 4856.2] #R^2 = 0.9994
+popt2 = [-2840, 0.0022, 2900] #R2 = 0.9984 # This one I fitted almost manually
+
+popt3 = [-2592.47, 0.0109569, 2708.4]   #R^2 = 0.9993
+popt4 = [-1828.32, 0.0711882, 2660.94]  #R^2 = 0.9978
+
+# Coefficients and R2 are from Desmos.com
+# Using ydata4Desmos = [ydata4[i] for i in range(2000) if i%50==0]
+# xdata4Desmos = [xdata4[i] for i in range(2000) if i%50==0]
+# ydata3Desmos = [ydata3[i] for i in range(8000) if i%170==0]
+# xdata3Desmos = [xdata3[i] for i in range(8000) if i%170==0]
+# ydata1Desmos = [ydata1[i] for i in range(9000) if i%190==0]
+# xdata1Desmos = [xdata1[i] for i in range(9000) if i%190==0]
+
+
+plt.figure(figsize=(16,8))
+plt.rc('font', size=12)          # controls default text sizes
+plt.rc('axes', titlesize=12)     # fontsize of the axes title
+plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
+plt.rc('legend', fontsize=12)    # legend fontsize
+plt.rc('figure', titlesize=16)  # fontsize of the figure title
+
+plt.plot(xdata1,ydata1, 'k--', label = 'E=0.05')
+plt.plot(xdata1, expon(xdata1, *popt1), 'k-', label = 'E=0.05 fit')
+plt.plot(xdata2,ydata2, 'b--', label = 'E=0.1')
+plt.plot(xdata2, expon(xdata2, *popt2), 'b-', label = 'E=0.1 fit')
+plt.plot(xdata3,ydata3, 'm--', label = 'E=0.2')
+plt.plot(xdata3, expon(xdata3, *popt3),'m-', label = 'E=0.2 fit')
+plt.plot(xdata4,ydata4, 'r--', label = 'E=0.5')
+plt.plot(xdata4, expon(xdata4, *popt4), 'r-', label = 'E=0.5 fit')
+
+plt.xlabel('time, hours')
+plt.ylabel('Phase variance')
+plt.xlim(-20,350)
+plt.ylim(-100,2800)
+plt.title('Variance of phase of 1000 noisy oscillators fitted to exponential', fontsize=16)
+plt.legend(loc=1)
 
 
 
