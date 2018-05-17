@@ -12,6 +12,7 @@ DEVOTED TO PLOTTING, USING FUNCTIONS FROM n_coupled_oscillators.py
 """
 
 """
+
 ##############################
 # STARTING THE ENGINE
 #############################
@@ -35,6 +36,21 @@ x4x = sep(x4)[0]
 
 def me4(x):
     return maxs3(extr(x))
+
+
+# Default parameters
+# 
+font = {'family' : 'normal',
+        'weight' : 'bold'}
+plt.rcParams["font.family"] = "Times New Roman"
+plt.rc('font', size=12)          # controls default text sizes
+plt.rc('axes', titlesize=12)     # fontsize of the axes title
+plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
+plt.rc('legend', fontsize=12)    # legend fontsize
+plt.rc('figure', titlesize=16)  # fontsize of the figure title
+
 """
 
 
@@ -53,10 +69,10 @@ plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
 plt.rc('legend', fontsize=12)    # legend fontsize
 plt.rc('figure', titlesize=16)  # fontsize of the figure title
 
-plt.plot (t, np.mean(x1x,axis=0),'k-', label = 'sigma=0.5')
-plt.plot (t, np.mean(x2x,axis=0),'b-', label = 'sigma=1')
-plt.plot (t, np.mean(x3x,axis=0),'m-', label = 'sigma=1.5')
-plt.plot (t, np.mean(x4x,axis=0),'r-', label = 'sigma=2')
+plt.plot (t, np.mean(x1x,axis=0),'k-', label = 'sigma = 0.5')
+plt.plot (t, np.mean(x2x,axis=0),'b-', label = 'sigma = 1')
+plt.plot (t, np.mean(x3x,axis=0),'m-', label = 'sigma = 1.5')
+plt.plot (t, np.mean(x4x,axis=0),'r-', label = 'sigma = 2')
 
 plt.ylabel ('x-coordinate')
 plt.xlabel ('time, hours')
@@ -65,6 +81,34 @@ plt.xlim(-10,350)
 plt.title('Mean (x-coordinate) of 1000 heterogenous oscillators', fontsize=16)
 plt.legend()
 plt.show()
+
+
+
+########## SAME, but printable
+
+plt.figure(figsize=(14,10))
+
+plt.rc('font', size=16)          # controls default text sizes
+plt.rc('axes', titlesize=18)     # fontsize of the axes title
+plt.rc('axes', labelsize=20)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=18)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=18)    # fontsize of the tick labels
+plt.rc('legend', fontsize=18)    # legend fontsize
+plt.rc('figure', titlesize=22)  # fontsize of the figure title
+
+plt.plot (t, np.mean(x1x,axis=0),'k-', label = 'sigma=0.5')
+plt.plot (t, np.mean(x2x,axis=0),'b-', label = 'sigma=1')
+plt.plot (t, np.mean(x3x,axis=0),'m-', label = 'sigma=1.5')
+plt.plot (t, np.mean(x4x,axis=0),'r-', label = 'sigma=2')
+
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+#plt.ylim(-1.5,2.5)
+plt.xlim(-10,400)
+plt.title('Mean (x-coordinate) of 1000 heterogenous oscillators', fontsize=22)
+plt.legend()
+plt.show()
+
 
 
 
@@ -80,10 +124,10 @@ plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
 plt.rc('legend', fontsize=12)    # legend fontsize
 plt.rc('figure', titlesize=16)  # fontsize of the figure title
 
-plt.plot(t,np.mean(x1x,axis=0),'k-', label="sigma 0.5")
-plt.plot(t,np.mean(x2x,axis=0),'b-', label="sigma 1.0")
-plt.plot(t,np.mean(x3x,axis=0),'m-', label="sigma 1.5")
-plt.plot(t,np.mean(x4x,axis=0),'r-', label="sigma 2.0")
+plt.plot(t,np.mean(x1x,axis=0),'k-', label="sigma = 0.5")
+plt.plot(t,np.mean(x2x,axis=0),'b-', label="sigma =  1.0")
+plt.plot(t,np.mean(x3x,axis=0),'m-', label="sigma =  1.5")
+plt.plot(t,np.mean(x4x,axis=0),'r-', label="sigma =  2.0")
 
 plt.plot(me4(np.mean(x1x,axis=0))[0], me4(np.mean(x1x,axis=0))[1], 'ko', label="maxima sigma 0.5")
 plt.plot(me4(np.mean(x2x,axis=0))[0], me4(np.mean(x2x,axis=0))[1], 'bo', label="maxima sigma 1.0")
