@@ -91,13 +91,13 @@ def me4(x):
 ############## Inside one variable
 plt.figure(figsize=(20,8))
 
-plt.rc('font', size=12)          # controls default text sizes
-plt.rc('axes', titlesize=12)     # fontsize of the axes title
-plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
-plt.rc('legend', fontsize=12)    # legend fontsize
-plt.rc('figure', titlesize=16)  # fontsize of the figure title
+    plt.rc('font', size=12)          # controls default text sizes
+    plt.rc('axes', titlesize=12)     # fontsize of the axes title
+    plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
+    plt.rc('legend', fontsize=12)    # legend fontsize
+    plt.rc('figure', titlesize=16)  # fontsize of the figure title
 
 for i in range(10):
     plt.plot(x2[0], x2[1][i], label='x-coord. of osc #' + str(i))
@@ -712,6 +712,72 @@ plt.legend(loc=1)
 
 
 
+
+
+##############################################################################################################
+#################################################################################################################
+
+PLAYING AROUND WITH SIZES
+#################################################
+font = {'style' : 'normal',
+        'weight' : 'light',
+        'family' : 'Times New Roman'}
+plt.rc('font', **font)      
+plt.figure(figsize=(14,10))
+
+plt.rc('font', size=20)          # controls default text sizes
+plt.rc('axes', titlesize=22)     # fontsize of the axes title
+plt.rc('axes', labelsize=24)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=24)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=24)    # fontsize of the tick labels
+plt.rc('legend', fontsize=26)    # legend fontsize
+plt.rc('figure', titlesize=26)  # fontsize of the figure title
+        
+plt.plot (t, np.mean(x1x,axis=0),'k-', label = 'sigma = 0.5')
+plt.plot (t, np.mean(x2x,axis=0),'b-', label = 'sigma = 1')
+plt.plot (t, np.mean(x3x,axis=0),'m-', label = 'sigma = 1.5')
+plt.plot (t, np.mean(x4x,axis=0),'r-', label = 'sigma = 2')
+
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+#plt.ylim(-1.5,2.5)
+plt.xlim(-10,400)
+plt.title('Mean (x-coordinate) of 1000 heterogenous oscillators', fontsize=26)
+plt.legend()
+plt.show()
+########################################################
+
+MEAN (maybe only change the legend?)
+############
+font = {'style' : 'normal',
+        'weight' : 'normal',
+        'family' : 'DejaVu Sans'}
+plt.rc('font', **font)      
+plt.figure(figsize=(14,10))
+
+plt.rc('font', size=20)          # controls default text sizes
+plt.rc('axes', titlesize=22)     # fontsize of the axes title
+plt.rc('axes', labelsize=24)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=24)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=24)    # fontsize of the tick labels
+plt.rc('legend', fontsize=26)    # legend fontsize
+plt.rc('figure', titlesize=26)  # fontsize of the figure title
+
+plt.plot (t, np.mean(x1x,axis=0),'k-', label = 'sigma = 0.5')
+plt.plot (t, np.mean(x2x,axis=0),'b-', label = 'sigma = 1')
+plt.plot (t, np.mean(x3x,axis=0),'m-', label = 'sigma = 1.5')
+plt.plot (t, np.mean(x4x,axis=0),'r-', label = 'sigma = 2')
+
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+#plt.ylim(-1.5,2.5)
+plt.xlim(-10,400)
+plt.title('Mean (x-coordinate) of 1000 heterogenous oscillators', fontsize=26)
+plt.legend()
+plt.show()
+
+
+######
 
 
 

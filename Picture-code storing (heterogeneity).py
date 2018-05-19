@@ -114,7 +114,7 @@ plt.show()
 
 ###### MEAN(X) AND MAXIMA VS. TIME 
 
-plt.figure(figsize=(16,8))
+plt.figure(figsize=(14,10))
 
 plt.rc('font', size=12)          # controls default text sizes
 plt.rc('axes', titlesize=12)     # fontsize of the axes title
@@ -170,7 +170,7 @@ rsq.append(r_sq(lin,xdata3[1:5],ydata3[1:5],popt3))
 rsq.append(r_sq(lin,xdata4[1:4],ydata4[1:4],popt4))
 
 
-plt.figure(figsize=(11,8))
+plt.figure(figsize=(14,10))
 
 plt.rc('font', size=10)          # controls default text sizes
 plt.rc('axes', titlesize=12)     # fontsize of the axes title
@@ -237,7 +237,7 @@ popt2 = [1.23586, 0.00727099, -0.107034] #R^2=0.9632
 popt3 = [1.11169, 0.0120443, -0.00746322] #R^2=0.9699
 popt4 = [1.08954, 0.0158688, -0.00718665] #R2 = 0.9743
 
-plt.figure(figsize=(11,8))
+plt.figure(figsize=(14,10))
 
 plt.rc('font', size=10)          # controls default text sizes
 plt.rc('axes', titlesize=12)     # fontsize of the axes title
@@ -282,7 +282,7 @@ popt4,pcov4 = curve_fit(quad,xdata4,ydata4, maxfev=10000)
 #popt3 = [1.11169, 0.0120443, -0.00746322] #R^2=0.9699
 #popt4 = [1.08954, 0.0158688, -0.00718665] #R2 = 0.9743
 
-plt.figure(figsize=(11,8))
+plt.figure(figsize=(14,10))
 
 plt.plot(xdata1,ydata1, 'ko', label = 's=0.5 maxima')
 plt.plot(xdata1, quad(xdata1, *popt1), 'k--', label = 's=0.5 fit')
@@ -315,7 +315,7 @@ plt.legend(loc=1)
 ######  VAR (X)
 ###########
 
-plt.figure(figsize=(16,8))
+plt.figure(figsize=(14,10))
 
 plt.plot (t, np.var(x1x,axis=0), label = 'sigma=0.5')
 plt.plot (t, np.var(x2x,axis=0), label = 'sigma=1')
@@ -332,7 +332,7 @@ plt.show()
 
 ######## VAR (X) (run_mean)
 
-plt.figure(figsize=(12,8))
+plt.figure(figsize=(14,10))
 
 plt.rc('font', size=10)          # controls default text sizes
 plt.rc('axes', titlesize=12)     # fontsize of the axes title
@@ -373,7 +373,7 @@ popt4,pcov4 = curve_fit(quad,xdata[:200],ydata4[:200])
 coefficients = [popt1[0],popt2[0],popt3[0], popt4[0]]
 ct = roundl(coefficients,6)
 
-plt.figure(figsize=(12,10))
+plt.figure(figsize=(14,10))
 plt.plot (xdata, ydata1, 'k--',label = 'sigma=0.5')
 plt.plot(xdata,quad(xdata,*popt1),'k-', label = 'fit')
 plt.plot (xdata, ydata2,'b--', label = 'sigma=1')
@@ -421,7 +421,7 @@ popt2 = [-0.760352, 0.0182613, 0.5087]
 popt3 = [-0.719447, 0.0293259, 0.501899]
 popt4 = [-0.691959, 0.0408108, 0.500804]
 
-plt.figure(figsize=(12,10))
+plt.figure(figsize=(14,10))
 plt.plot (xdata, ydata1, 'k--',label = 'sigma=0.5')
 plt.plot(xdata,expon(xdata,*popt1),'k-', label = 'fit')
 plt.plot (xdata, ydata2,'b--', label = 'sigma=1')
@@ -445,7 +445,7 @@ plt.show()
 ######### VAR (PHASE)
 ################
 
-plt.figure(figsize=(16,8))
+plt.figure(figsize=(14,10))
 plt.plot (t, phvar(x1)[0],'k-', label = 'sigma=0.5')
 plt.plot (t, phvar(x2)[0],'b-', label = 'sigma=1')
 plt.plot (t, phvar(x3)[0],'m-', label = 'sigma=1.5')
@@ -459,7 +459,7 @@ plt.show()
 
 ###### run_mean(VAR (PHASE))
 
-plt.figure(figsize=(16,8))
+plt.figure(figsize=(14,10))
 plt.plot (t[:3762], run_mean(phvar(x1)[0],120,1),'k-', label = 'sigma=0.5')
 plt.plot (t[:3762], run_mean(phvar(x2)[0],120,1),'b-', label = 'sigma=1')
 plt.plot (t[:3762], run_mean(phvar(x3)[0],120,1),'m-', label = 'sigma=1.5')
@@ -488,7 +488,7 @@ tangents = [popt1[0],popt2[0],popt3[0], popt4[0]]
 rt = roundl(tangents,3)
 nt = roundl((rt/rt[0]).tolist(),3)
 
-plt.figure(figsize=(16,8))
+plt.figure(figsize=(14,10))
 
 plt.plot (xdata, ydata1, 'k--',label = 'sigma=0.5 data')
 plt.plot(xdata,lin(xdata,*popt1),'k-', label = 'fit')
@@ -537,7 +537,7 @@ popt4,pcov4 = curve_fit(quad,xdata[:200],ydata4[:200])
 coefficients = [popt1[0],popt2[0],popt3[0], popt4[0]]
 ct = roundl(coefficients,3)
 
-plt.figure(figsize=(12,8))
+plt.figure(figsize=(14,10))
 
 plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5')
 plt.plot(xdata,quad(xdata,*popt1),'r-', label = 'fit')
@@ -574,7 +574,7 @@ popt2,pcov2 = curve_fit(expon,xdata,ydata2,maxfev=10000)
 popt3,pcov3 = curve_fit(expon,xdata,ydata3,maxfev=10000)
 popt4,pcov4 = curve_fit(expon,xdata,ydata4,maxfev=10000)
 
-plt.figure(figsize=(12,8))
+plt.figure(figsize=(14,10))
 
 plt.plot (xdata, ydata1, 'r--',label = 'sigma=0.5')
 plt.plot(xdata,expon(xdata,*popt1),'r-', label = 'fit')
@@ -595,6 +595,132 @@ plt.ylim(-50,3000)
 plt.title ('Variance of phase of 1000 heterogenous oscillators (smoothened) fitted to exponential', fontsize=16)
 plt.legend()
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+########################################################################################################
+########################################################
+
+MEAN (maybe only change the legend?)
+############
+font = {'style' : 'normal',
+        'weight' : 'normal',
+        'family' : 'DejaVu Sans'}
+plt.rc('font', **font)      
+plt.figure(figsize=(14,10))
+
+plt.rc('font', size=20)          # controls default text sizes
+plt.rc('axes', titlesize=22)     # fontsize of the axes title
+plt.rc('axes', labelsize=24)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=24)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=24)    # fontsize of the tick labels
+plt.rc('legend', fontsize=26)    # legend fontsize
+plt.rc('figure', titlesize=26)  # fontsize of the figure title
+
+plt.plot (t, np.mean(x1x,axis=0),'k-', label = 'sigma = 0.5')
+plt.plot (t, np.mean(x2x,axis=0),'b-', label = 'sigma = 1')
+plt.plot (t, np.mean(x3x,axis=0),'m-', label = 'sigma = 1.5')
+plt.plot (t, np.mean(x4x,axis=0),'r-', label = 'sigma = 2')
+
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+#plt.ylim(-1.5,2.5)
+plt.xlim(-10,400)
+plt.title('Mean (x-coordinate) of 1000 heterogenous oscillators', fontsize=26)
+plt.legend()
+plt.show()
+
+
+
+
+####
+MEAN LINE FIT
+####
+
+xdata1 = np.array(me4(np.mean(x1x, axis=0))[0])
+ydata1 = np.array(me4(np.mean(x1x, axis=0))[1])
+xdata2 = np.array(me4(np.mean(x2x, axis=0))[0])
+ydata2 = np.array(me4(np.mean(x2x, axis=0))[1])
+xdata3 = np.array(me4(np.mean(x3x, axis=0))[0])
+ydata3 = np.array(me4(np.mean(x3x, axis=0))[1])
+xdata4 = np.array(me4(np.mean(x4x, axis=0))[0])
+ydata4 = np.array(me4(np.mean(x4x, axis=0))[1])
+
+popt1,pcov1 = curve_fit(lin,xdata1[3:10],ydata1[3:10])
+popt2,pcov2 = curve_fit(lin,xdata2[2:8],ydata2[2:8])
+popt3,pcov3 = curve_fit(lin,xdata3[1:5],ydata3[1:5])
+popt4,pcov4 = curve_fit(lin,xdata4[1:4],ydata4[1:4])
+tangents = [popt1[0],popt2[0],popt3[0], popt4[0]]
+rt = roundl(tangents,4)
+nt = roundl((rt/rt[0]).tolist(),4)
+
+# R-squared metric
+rsq = []
+rsq.append(r_sq(lin,xdata1[3:10],ydata1[3:10],popt1))
+rsq.append(r_sq(lin,xdata2[2:8],ydata2[2:8],popt2))
+rsq.append(r_sq(lin,xdata3[1:5],ydata3[1:5],popt3))
+rsq.append(r_sq(lin,xdata4[1:4],ydata4[1:4],popt4))
+
+plt.figure(figsize=(14,10))
+#plt.rc('legend', fontsize=22)    # legend fontsize
+plt.plot(xdata1,ydata1, 'ko', label = 's=0.5 maxima')
+plt.plot(xdata1, lin(xdata1, *popt1), 'k--', label = 's=0.5 fit')
+plt.plot(xdata2,ydata2, 'bo', label = 's=1.0 maxima')
+plt.plot(xdata2, lin(xdata2, *popt2), 'b--', label = 's=1.0 fit')
+plt.plot(xdata3,ydata3, 'mo', label = 's=1.5 maxima')
+plt.plot(xdata3, lin(xdata3, *popt3),'m--', label = 's=1.5 fit')
+plt.plot(xdata4,ydata4, 'ro', label = 's=2.0 maxima')
+plt.plot(xdata4, lin(xdata4, *popt4), 'r--', label = 's=2.0 fit')
+
+#plt.plot(np.linspace(0,400,400), [0.23]*400, '-', label = 'Lowest cut-off limit')
+#plt.plot(np.linspace(0,180,180), [0.945]*180, '-', label = 'Highest cut-off limit')
+
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+texttang = ''
+texttang2 = ''
+for i in rt:
+    texttang = texttang+str(i)+' : '
+for i in nt:
+    texttang2 = texttang2+str(i)+' : '
+texttang = texttang[:-3]
+texttang2 = texttang2[:-3]
+#plt.text(90,1.1,'Slopes\n' + texttang)
+#plt.text(90,1.0,'Normalized\n' + texttang2)
+
+plt.xlim(-15,400)
+plt.ylim(-0.2,1.2)
+plt.title('Mean (x-coord) of heterogenous oscillators fitted to the line', fontsize=26)
+plt.legend()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

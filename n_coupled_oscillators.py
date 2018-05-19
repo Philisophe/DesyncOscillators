@@ -1717,7 +1717,9 @@ plt.legend()
 
 """
 Picture creation
-
+n001=1
+params001 = ([0.1],[1], [(np.pi*2)/24], [0.0], [0.0], [0.0])
+t001 = np.linspace(0,50,500)
 x001 = odeint(oscillator_system, [1,0] , t001, args=(params001))
 
 fig, (ax1, ax2) = plt.subplots(2, sharey=True)
