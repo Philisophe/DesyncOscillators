@@ -1722,14 +1722,14 @@ params001 = ([0.1],[1], [(np.pi*2)/24], [0.0], [0.0], [0.0])
 t001 = np.linspace(0,50,500)
 x001 = odeint(oscillator_system, [1,0] , t001, args=(params001))
 
-fig, (ax1, ax2) = plt.subplots(2, sharey=True)
+fig, (ax1, ax2) = plt.subplots(2, sharey=True, figsize=(14, 10))
 ax1.grid()
 ax1.plot(t001,x001[:,0], label='')
-ax1.plot(t001[359], x001[:,0][359], 'o')
+ax1.plot(t001[359], x001[:,0][359], 'o', markersize=15)
 ax1.set(title='Time series for 2-dimentional oscillator', ylabel='x-coordinate (t)')
 
 ax2.plot(t001,x001[:,1], label='')
-ax2.plot(t001[359], x001[:,1][359], 'o')
+ax2.plot(t001[359], x001[:,1][359], 'o', markersize=15)
 ax2.set(xlabel='time, hours',ylabel='y-coordinate (t)')
 ax2.grid()
 plt.show()
@@ -1750,6 +1750,36 @@ plt.text(0.6,0.85, '(0.71,0.69)\n 26.9h from (1,0)')
 plt.grid()
 plt.legend()
 plt.show()
+#########
+
+Phase variance is oscillating:
+
+    n=2
+t = np.linspace(0, 1000, 1000)
+state0 = [1,0]*n
+x01 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(25.5), (np.pi*2)/(22.5)],[0.0]*n,[0.0]*n, [0.0]*n)))
+
+plt.plot (t, phvar(x01)[0], label = 'sigma=0.5')
+plt.xlim(0,400)
+##########
+
+Desync in heterogeneity
+#######
+n=10
+t = np.linspace(0, 1000, 1000)
+state0 = [1,0]*n
+x03 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x03x = sep(x03)[0]
+plt.figure (figsize=(14,10))
+for i in range(10):
+    plt.plot(t,x03x[i])
+plt.xlim(0,100)
+#plt.grid()
+plt.ylabel('x-coordinate')
+plt.xlabel('time, hours')
+plt.title('Desync in heterogenous system, N=10', fontsize=26)
+
+
 """
 
 """

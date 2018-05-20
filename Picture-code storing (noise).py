@@ -91,13 +91,13 @@ def me4(x):
 ############## Inside one variable
 plt.figure(figsize=(20,8))
 
-    plt.rc('font', size=12)          # controls default text sizes
-    plt.rc('axes', titlesize=12)     # fontsize of the axes title
-    plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
-    plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
-    plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
-    plt.rc('legend', fontsize=12)    # legend fontsize
-    plt.rc('figure', titlesize=16)  # fontsize of the figure title
+plt.rc('font', size=12)          # controls default text sizes
+plt.rc('axes', titlesize=12)     # fontsize of the axes title
+plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
+plt.rc('legend', fontsize=12)    # legend fontsize
+plt.rc('figure', titlesize=16)  # fontsize of the figure title
 
 for i in range(10):
     plt.plot(x2[0], x2[1][i], label='x-coord. of osc #' + str(i))
@@ -162,15 +162,14 @@ plt.legend()
 
 ####### MAXIMA
 
-plt.figure(figsize=(16,8))
-
-plt.rc('font', size=12)          # controls default text sizes
-plt.rc('axes', titlesize=12)     # fontsize of the axes title
-plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
-plt.rc('legend', fontsize=12)    # legend fontsize
-plt.rc('figure', titlesize=16)  # fontsize of the figure title
+plt.figure(figsize=(14,10))
+#plt.rc('font', size=12)          # controls default text sizes
+#plt.rc('axes', titlesize=12)     # fontsize of the axes title
+#plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
+#plt.rc('xtick', labelsize=12)    # fontsize of the tick labels
+#plt.rc('ytick', labelsize=12)    # fontsize of the tick labels
+#plt.rc('legend', fontsize=12)    # legend fontsize
+#plt.rc('figure', titlesize=16)  # fontsize of the figure title
 
 m4good = me4 (run_mean (np.mean(x4[1], axis=0), 30, 1)) # Smoothened (30,2)
 m1 = me4 (run_mean (np.mean(x1[1], axis=0), 30, 0)) # Smoothened (30,1)
@@ -777,13 +776,484 @@ plt.legend()
 plt.show()
 
 
-######
+###############
+MEAN LINE
+##############
+
+plt.figure(figsize=(14,10))
+
+m1 = me4 (run_mean (np.mean(x1[1], axis=0), 30, 0)) # Smoothened (30,1)
+m2 = me4 (run_mean (np.mean(x2[1], axis=0), 30, 0))
+m3 = me4 (run_mean (np.mean(x3[1], axis=0), 30, 0))
+m4 = me4 (run_mean (np.mean(x4[1], axis=0), 30, 1)) # Smoothened (30,2)
+#m4_BAD = me4 (run_mean (np.mean(x4[1], axis=0), 30, 0))
+
+xdata1 = np.array(m1[0])
+ydata1 = np.array(m1[1])
+xdata2 = np.array(m2[0])
+ydata2 = np.array(m2[1])
+xdata3 = np.array(m3[0])
+ydata3 = np.array(m3[1])
+xdata4 = np.array(m4[0])
+ydata4 = np.array(m4[1])
+
+popt1,pcov1 = curve_fit(lin,xdata1,ydata1)
+popt2,pcov2 = curve_fit(lin,xdata2[1:10],ydata2[1:10])
+popt3,pcov3 = curve_fit(lin,xdata3[0:5],ydata3[0:5])
+popt4,pcov4 = curve_fit(lin,xdata4[0:3],ydata4[0:3])
+
+tangents = [popt1[0],popt2[0],popt3[0], popt4[0]]
+nt = norm(tangents)
+rt = roundl(tangents,4)
+angles = slp2ang(tangents)
+plt.rc('legend', fontsize=21)
+plt.plot(xdata1,ydata1, 'ko', label = 'E=0.05')
+plt.plot(xdata1, lin(xdata1, *popt1), 'k--', label = 'fit')
+plt.plot(xdata2,ydata2, 'bo', label = 'E=0.1')
+plt.plot(xdata2, lin(xdata2, *popt2), 'b--', label = 'fit')
+plt.plot(xdata3,ydata3, 'mo', label = 'E=0.2')
+plt.plot(xdata3, lin(xdata3, *popt3),'m--', label = 'fit')
+plt.plot(xdata4,ydata4, 'ro', label = 'E=0.5')
+plt.plot(xdata4, lin(xdata4, *popt4), 'r--', label = 'fit')
+
+plt.xlabel('time, hours')
+plt.ylabel('x-coordinate')
+texttang = ''
+for i in rt:
+    texttang = texttang+str(i)+' : '
+texttang = texttang[:-3]
+#plt.text(1,1.1,'The slopes:\n' + texttang)
+
+plt.ylim(-0.2,1.1)
+plt.xlim(-15, 400)
+plt.legend(loc=1)
+plt.grid()
+plt.title('Maxima of means (x-coord) of noisy oscillators fitted to the line', fontsize=25)
 
 
 
+
+
+
+#########
+MEAN quad
+#######
+
+plt.figure(figsize=(14,10))
+
+m1 = me4 (run_mean (np.mean(x1[1], axis=0), 30, 0)) # Smoothened (30,1)
+m2 = me4 (run_mean (np.mean(x2[1], axis=0), 30, 0))
+m3 = me4 (run_mean (np.mean(x3[1], axis=0), 30, 0))
+m4 = me4 (run_mean (np.mean(x4[1], axis=0), 30, 1)) # Smoothened (30,2)
+#m4_BAD = me4 (run_mean (np.mean(x4[1], axis=0), 30, 0))
+
+xdata1 = np.array(m1[0])
+ydata1 = np.array(m1[1])
+xdata2 = np.array(m2[0])
+ydata2 = np.array(m2[1])
+xdata3 = np.array(m3[0])
+ydata3 = np.array(m3[1])
+xdata4 = np.array(m4[0])
+ydata4 = np.array(m4[1])
+
+# This shit won't work as predicted
+popt1,pcov1 = curve_fit(quad,xdata1[:3000],ydata1[:3000], maxfev = 10000)
+popt2,pcov2 = curve_fit(quad,xdata2[:3000],ydata2[:3000], maxfev = 10000)
+popt3,pcov3 = curve_fit(quad,xdata3[:3000],ydata3[:3000], maxfev = 10000)
+popt4,pcov4 = curve_fit(quad,xdata4[:2000],ydata4[:2000], maxfev = 10000)
+
+# To obtain these - use Desmos.com
+# Copy-paste datapoints from xdata/ydata to the tables; then regression
+#popt1 = [0.362215, 0.00099855, 0.637115] # R2 = 0.9982
+#popt2 = [1.27066, 0.000797632, -0.282885] # R2 = 0.9983
+#popt3 = [1.04445, 0.0052881, -0.032042] # R2 = 0.9984
+#popt4 = [1.00651, 0.0325793, 0.00844607] # R2 = 0.9837
+
+
+plt.plot(xdata1,ydata1, 'ko', label = 'E=0.05 maxima')
+plt.plot(xdata1, quad(xdata1, *popt1), 'k--', label = 'fit')
+plt.plot(xdata2,ydata2, 'bo', label = 'E=0.1 maxima')
+plt.plot(xdata2, quad(xdata2, *popt2), 'b--', label = 'fit')
+plt.plot(xdata3,ydata3, 'mo', label = 'E=0.2 maxima')
+plt.plot(xdata3, quad(xdata3, *popt3),'m--', label = 'fit')
+plt.plot(xdata4,ydata4, 'ro', label = 'E=0.5 maxima')
+plt.plot(xdata4, quad(xdata4, *popt4), 'r--', label = 'fit')
+
+plt.xlabel('time, hours')
+plt.ylabel('x-coordinate')
+plt.xlim(-10,400)
+plt.ylim(-0.2, 1.1)
+#plt.legend(loc=1)
+plt.title('Maxima of means of noisy oscillators fitted to the quadratic', fontsize=26)
+plt.grid()
+
+
+
+#########
+MEAN expon
+#######
+
+
+plt.figure(figsize=(14,10))
+
+m1 = me4 (run_mean (np.mean(x1[1], axis=0), 30, 0)) # Smoothened (30,1)
+m2 = me4 (run_mean (np.mean(x2[1], axis=0), 30, 0))
+m3 = me4 (run_mean (np.mean(x3[1], axis=0), 30, 0))
+m4 = me4 (run_mean (np.mean(x4[1], axis=0), 30, 1)) # Smoothened (30,2)
+#m4_BAD = me4 (run_mean (np.mean(x4[1], axis=0), 30, 0))
+
+xdata1 = np.array(m1[0])
+ydata1 = np.array(m1[1])
+xdata2 = np.array(m2[0])
+ydata2 = np.array(m2[1])
+xdata3 = np.array(m3[0])
+ydata3 = np.array(m3[1])
+xdata4 = np.array(m4[0])
+ydata4 = np.array(m4[1])
+
+# This shit won't work as predicted
+#popt1,pcov1 = curve_fit(expon,xdata1,ydata1, maxfev = 10000)
+#popt2,pcov2 = curve_fit(expon,xdata2,ydata2, maxfev = 10000)
+#popt3,pcov3 = curve_fit(expon,xdata3,ydata3, maxfev = 10000)
+#popt4,pcov4 = curve_fit(expon,xdata4,ydata4, maxfev = 10000)
+
+# To obtain these - use Desmos.com
+# Copy-paste datapoints from xdata/ydata to the tables; then regression
+popt1 = [0.362215, 0.00099855, 0.637115] # R2 = 0.9982
+popt2 = [1.27066, 0.000797632, -0.282885] # R2 = 0.9983
+popt3 = [1.04445, 0.0052881, -0.032042] # R2 = 0.9984
+popt4 = [1.00651, 0.0325793, 0.00844607] # R2 = 0.9837
+
+
+plt.plot(xdata1,ydata1, 'ko', label = 'E=0.05 maxima')
+plt.plot(xdata1, expon(xdata1, *popt1), 'k--', label = 'fit')
+plt.plot(xdata2,ydata2, 'bo', label = 'E=0.1 maxima')
+plt.plot(xdata2, expon(xdata2, *popt2), 'b--', label = 'fit')
+plt.plot(xdata3,ydata3, 'mo', label = 'E=0.2 maxima')
+plt.plot(xdata3, expon(xdata3, *popt3),'m--', label = 'fit')
+plt.plot(xdata4,ydata4, 'ro', label = 'E=0.5 maxima')
+plt.plot(xdata4, expon(xdata4, *popt4), 'r--', label = 'fit')
+
+plt.xlabel('time, hours')
+plt.ylabel('x-coordinate')
+plt.xlim(-10,400)
+plt.ylim(-0.2, 1.1)
+#plt.legend(loc=1)
+plt.title('Maxima of means of noisy oscillators fitted to the exponential', fontsize=26)
+plt.grid()
+
+
+
+
+
+
+
+
+
+
+
+
+###########################################################################################
+
+VAR(x)
+
+plt.figure(figsize=(14,10))
+
+plt.plot (x1[0][:10562], run_mean(np.var(x1[1],axis=0),240), 'k-', label = 'E=0.05')
+#plt.plot (x1[0][:10323], run_mean(np.var(x1[1],axis=0),240,1),'k-', label = 'E=0.05')
+#plt.plot (x1[0][:9364], run_mean(np.var(x1[1],axis=0),240,2),'k-', label = 'E=0.05')
+plt.plot (x2[0][:10562], run_mean(np.var(x2[1],axis=0),240), 'b-',label = 'E=0.1')
+plt.plot (x3[0][:10562], run_mean(np.var(x3[1],axis=0),240),'m-', label = 'E=0.2')
+plt.plot (x4[0][:10562], run_mean(np.var(x4[1],axis=0),240),'r-', label = 'E=0.5')
+#plt.plot(x4[0][0:100],np.var(x4[1], axis=0)[0:100], 'r-')
+
+plt.ylabel ('x-coordinate variance')
+plt.xlabel ('time, hours')
+plt.title('Variance (x-coodrinate) of noisy oscillators (smoothened)', fontsize=26)
+plt.legend(loc=1)
+plt.ylim(-0.04, 0.82)
+plt.xlim(-10, 400)
+plt.grid()
+plt.show()
+
+
+##########
+VAR(x) LINE
+#########
+xdata1 = x1[0][:10562]
+xdata2 = x2[0][:10562]
+xdata3 = x3[0][:10562]
+xdata4 = x4[0][:10562]
+
+ydata1 = run_mean(np.var(x1[1],axis=0),240)
+ydata2 = run_mean(np.var(x2[1],axis=0),240)
+ydata3 = run_mean(np.var(x3[1],axis=0),240)
+ydata4 = run_mean(np.var(x4[1],axis=0),240)
+
+popt1,pcov1 = curve_fit(lin,xdata1[:6000],ydata1[:6000])
+popt2,pcov2 = curve_fit(lin,xdata2[:4000],ydata2[:4000])
+popt3,pcov3 = curve_fit(lin,xdata3[:2000],ydata3[:2000])
+popt4,pcov4 = curve_fit(lin,xdata4[:400],ydata4[:400])
+
+plt.figure(figsize=(14,10))
+plt.plot (xdata1, ydata1, 'k--',label = 'E=0.05')
+plt.plot(xdata1,lin(xdata1,*popt1),'k-', label = 'fit')
+plt.plot (xdata2, ydata2,'b--', label = 'E=0.1')
+plt.plot(xdata2,lin(xdata2,*popt2),'b-', label = 'fit')
+plt.plot (xdata3, ydata3,'m--', label = 'E=0.2')
+plt.plot(xdata3,lin(xdata3,*popt3),'m-', label = 'fit')
+plt.plot (xdata4, ydata4, 'r--', label = 'E=0.5')
+plt.plot(xdata4,lin(xdata4,*popt4),'r-', label = 'fit')
+
+plt.ylabel ('x-coordinate variance')
+plt.xlabel ('time, hours')
+plt.ylim(-0.04,0.82)
+plt.xlim(-10,400)
+plt.title('Variance of x-coord of noisy oscillators fitted to the line', fontsize=26)
+#plt.legend(loc=1)
+plt.grid()
+plt.show()
+
+
+#######
+VAR (X) quad
+#######
+
+xdata1 = x1[0][:10562]
+xdata2 = x2[0][:10562]
+xdata3 = x3[0][:10562]
+xdata4 = x4[0][:10562]
+
+ydata1 = run_mean(np.var(x1[1],axis=0),240)
+ydata2 = run_mean(np.var(x2[1],axis=0),240)
+ydata3 = run_mean(np.var(x3[1],axis=0),240)
+ydata4 = run_mean(np.var(x4[1],axis=0),240)
+
+popt1,pcov1 = curve_fit(quad,xdata1[:7000],ydata1[:7000])
+popt2,pcov2 = curve_fit(quad,xdata2[:5000],ydata2[:5000])
+popt3,pcov3 = curve_fit(quad,xdata3[:3000],ydata3[:3000])
+popt4,pcov4 = curve_fit(quad,xdata4[:1000],ydata4[:1000])
+
+
+plt.figure(figsize=(14,10))
+
+plt.plot (xdata1, ydata1, 'k--',label = 'E=0.05')
+plt.plot(xdata1,quad(xdata1,*popt1),'k-', label = 'fit')
+
+plt.plot (xdata2, ydata2,'b--', label = 'E=0.1')
+plt.plot(xdata2,quad(xdata2,*popt2),'b-', label = 'fit')
+
+plt.plot (xdata3, ydata3,'m--', label = 'E=0.2')
+plt.plot(xdata3,quad(xdata3,*popt3),'m-', label = 'fit')
+
+plt.plot (xdata4, ydata4, 'r--', label = 'E=0.5')
+plt.plot(xdata4,quad(xdata4,*popt4),'r-', label = 'fit')
+
+plt.ylabel ('x-coordinate variance')
+plt.xlabel ('time, hours')
+plt.ylim(-0.04,0.82)
+plt.xlim(-10,400)
+plt.title('Variance of x-coord of noisy oscillators fitted to the quadratic', fontsize=26)
+#plt.legend(loc=1)
+plt.grid()
+plt.show()
+
+
+########
+VAR(X) expon
+########
+xdata1 = x1[0][:10562]
+xdata2 = x2[0][:10562]
+xdata3 = x3[0][:10562]
+xdata4 = x4[0][:10562]
+
+ydata1 = run_mean(np.var(x1[1],axis=0),240)
+ydata2 = run_mean(np.var(x2[1],axis=0),240)
+ydata3 = run_mean(np.var(x3[1],axis=0),240)
+ydata4 = run_mean(np.var(x4[1],axis=0),240)
+
+popt1,pcov1 = curve_fit(expon,xdata1,ydata1, maxfev=10000)
+popt2,pcov2 = curve_fit(expon,xdata2,ydata2, maxfev=10000)
+popt3,pcov3 = curve_fit(expon,xdata3,ydata3, maxfev=10000)
+popt4,pcov4 = curve_fit(expon,xdata4,ydata4, maxfev=10000)
+
+#### R-squared statistical metric
+rsq=[]
+rsq.append(r_sq(expon,xdata1,ydata1,popt1))
+rsq.append(r_sq(expon,xdata2,ydata2,popt2))
+rsq.append(r_sq(expon,xdata3,ydata3,popt3))
+rsq.append(r_sq(expon,xdata4,ydata4,popt4))
+
+plt.figure(figsize=(14,10))
+
+plt.plot (xdata1, ydata1, 'k--',label = 'E=0.05')
+plt.plot(xdata1,expon(xdata1,*popt1),'k-', label = 'E=0.05 fit')
+plt.plot (xdata2, ydata2,'b--', label = 'E=0.1')
+plt.plot(xdata2,expon(xdata2,*popt2),'b-', label = 'E=0.1 fit')
+plt.plot (xdata3, ydata3,'m--', label = 'E=0.2')
+plt.plot(xdata3,expon(xdata3,*popt3),'m-', label = 'E=0.2 fit')
+plt.plot (xdata4, ydata4, 'r--', label = 'E=0.5')
+plt.plot(xdata4,expon(xdata4,*popt4),'r-', label = 'E=0.5 fit')
+
+plt.ylabel ('x-coordinate variance')
+plt.xlabel ('time, hours')
+plt.ylim(-0.04,0.82)
+plt.xlim(-10,400)
+plt.title('Variance of x-coord of noisy oscillators fitted to the exponential', fontsize=26)
+#plt.legend(loc=1)
+plt.grid()
+plt.show()
+
+
+###########
+VAR (phase)
+#########
+plt.figure(figsize=(14,10))
+
+plt.plot(x1[0][:10562], run_mean(ph1, 240), 'k-', label='E=0.05')
+plt.plot(x2[0][:10562], run_mean(ph2, 240), 'b-', label='E=0.1')
+plt.plot(x3[0][:10562], run_mean(ph3, 240), 'm-', label='E=0.2')
+plt.plot(x4[0][:10562], run_mean(ph4, 240), 'r-', label='E=0.5')
+
+plt.xlabel('time, hours')
+plt.ylabel('Phase variance')
+plt.title('Variance of phase of noisy oscillators (smoothened)', fontsize=26)
+plt.grid()
+#plt.legend()
+plt.xlim(-10, 400)
+plt.ylim(-50,2900)
+
+
+#############
+LINE
+########
+xdata1 = np.array(x1[0][:10562])
+xdata2 = np.array(x2[0][:10562])
+xdata3 = np.array(x3[0][:10562])
+xdata4 = np.array(x4[0][:10562])
+
+ydata1 = run_mean(ph1, 240)
+ydata2 = run_mean(ph2, 240)
+ydata3 = run_mean(ph3, 240)
+ydata4 = run_mean(ph4, 240)
+
+popt1,pcov1 = curve_fit(lin,xdata1[:6000],ydata1[:6000], maxfev=10000)
+popt2,pcov2 = curve_fit(lin,xdata2[:3000],ydata2[:3000], maxfev=10000)
+popt3,pcov3 = curve_fit(lin,xdata3[:700],ydata3[:700], maxfev=10000)
+popt4,pcov4 = curve_fit(lin,xdata4[:300],ydata4[:300], maxfev=10000)
+
+plt.figure(figsize=(14,10))
+
+plt.plot(xdata1,ydata1, 'k--', label = 'E=0.05')
+plt.plot(xdata1, lin(xdata1, *popt1), 'k-', label = 'fit')
+plt.plot(xdata2,ydata2, 'b--', label = 'E=0.1')
+plt.plot(xdata2, lin(xdata2, *popt2), 'b-', label = 'fit')
+plt.plot(xdata3,ydata3, 'm--', label = 'E=0.2')
+plt.plot(xdata3, lin(xdata3, *popt3),'m-', label = 'fit')
+plt.plot(xdata4,ydata4, 'r--', label = 'E=0.5')
+plt.plot(xdata4, lin(xdata4, *popt4), 'r-', label = 'fit')
+
+plt.xlabel('time, hours')
+plt.ylabel('Variance of phase')
+plt.title('Variance of phase of noisy oscillators fitted to the line', fontsize=26)
+plt.grid()
+plt.legend(loc=4)
+plt.xlim(-10, 400)
+plt.ylim(-50,2900)
+
+
+###########
+QUAD
+#########
+
+xdata1 = np.array(x1[0][:10562])
+xdata2 = np.array(x2[0][:10562])
+xdata3 = np.array(x3[0][:10562])
+xdata4 = np.array(x4[0][:10562])
+
+ydata1 = run_mean(ph1, 240)
+ydata2 = run_mean(ph2, 240)
+ydata3 = run_mean(ph3, 240)
+ydata4 = run_mean(ph4, 240)
+
+popt1,pcov1 = curve_fit(quad,xdata1[:6000],ydata1[:6000], maxfev=10000)
+popt2,pcov2 = curve_fit(quad,xdata2[:4000],ydata2[:4000], maxfev=10000)
+popt3,pcov3 = curve_fit(quad,xdata3[:900],ydata3[:900], maxfev=10000)
+popt4,pcov4 = curve_fit(quad,xdata4[:400],ydata4[:400], maxfev=10000)
+
+plt.figure(figsize=(14,10))
+
+plt.plot(xdata1,ydata1, 'k--', label = 'E=0.05')
+plt.plot(xdata1, quad(xdata1, *popt1), 'k-', label = 'E=0.05 fit')
+plt.plot(xdata2,ydata2, 'b--', label = 'E=0.1')
+plt.plot(xdata2, quad(xdata2, *popt2), 'b-', label = 'E=0.1 fit')
+plt.plot(xdata3,ydata3, 'm--', label = 'E=0.2')
+plt.plot(xdata3, quad(xdata3, *popt3),'m-', label = 'E=0.2 fit')
+plt.plot(xdata4,ydata4, 'r--', label = 'E=0.5')
+plt.plot(xdata4, quad(xdata4, *popt4), 'r-', label = 'E=0.5 fit')
+
+plt.xlabel('time, hours')
+plt.ylabel('Variance of phase')
+plt.title('Variance of phase of noisy oscillators fitted to the quadratic', fontsize=26)
+plt.grid()
+#plt.legend(loc=4)
+plt.xlim(-10, 400)
+plt.ylim(-50,2900)
+
+
+#######
+Expon
+########
+
+xdata1 = np.array(x1[0][:10562])
+xdata2 = np.array(x2[0][:10562])
+xdata3 = np.array(x3[0][:10562])
+xdata4 = np.array(x4[0][:10562])
+
+ydata1 = run_mean(ph1, 240)
+ydata2 = run_mean(ph2, 240)
+ydata3 = run_mean(ph3, 240)
+ydata4 = run_mean(ph4, 240)
+
+#popt1,pcov1 = curve_fit(expon, xdata1[:6000], ydata1[:6000], maxfev=10000)
+#popt2,pcov2 = curve_fit(expon, xdata2[:3000], ydata2[:3000], maxfev=10000)
+#popt3,pcov3 = curve_fit(expon, xdata3[:700], ydata3[:700], maxfev=10000)
+#popt4,pcov4 = curve_fit(expon, xdata4[:300], ydata4[:300], maxfev=10000)
+
+popt1 = [-4838.26, 0.000317081, 4856.2] #R^2 = 0.9994
+popt2 = [-2840, 0.0022, 2900] #R2 = 0.9984 # This one I fitted almost manually
+
+popt3 = [-2592.47, 0.0109569, 2708.4]   #R^2 = 0.9993
+popt4 = [-1828.32, 0.0711882, 2660.94]  #R^2 = 0.9978
+
+# Coefficients and R2 are from Desmos.com
+# Using ydata4Desmos = [ydata4[i] for i in range(2000) if i%50==0]
+# xdata4Desmos = [xdata4[i] for i in range(2000) if i%50==0]
+# ydata3Desmos = [ydata3[i] for i in range(8000) if i%170==0]
+# xdata3Desmos = [xdata3[i] for i in range(8000) if i%170==0]
+# ydata1Desmos = [ydata1[i] for i in range(9000) if i%190==0]
+# xdata1Desmos = [xdata1[i] for i in range(9000) if i%190==0]
+
+
+plt.figure(figsize=(14,10))
+
+plt.plot(xdata1,ydata1, 'k--', label = 'E=0.05')
+plt.plot(xdata1, expon(xdata1, *popt1), 'k-', label = 'fit')
+plt.plot(xdata2,ydata2, 'b--', label = 'E=0.1')
+plt.plot(xdata2, expon(xdata2, *popt2), 'b-', label = 'fit')
+plt.plot(xdata3,ydata3, 'm--', label = 'E=0.2')
+plt.plot(xdata3, expon(xdata3, *popt3),'m-', label = 'fit')
+plt.plot(xdata4,ydata4, 'r--', label = 'E=0.5')
+plt.plot(xdata4, expon(xdata4, *popt4), 'r-', label = 'fit')
+
+plt.xlabel('time, hours')
+plt.ylabel('Variance of phase')
+plt.title('Variance of phase of noisy oscillators fitted to the exponential', fontsize=26)
+plt.grid()
+#plt.legend(loc=4)
+plt.xlim(-10, 400)
+plt.ylim(-50,2900)
 """
-
-
 
 
 
