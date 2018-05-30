@@ -307,6 +307,16 @@ def maxs3(list_extr):
     maxsV.insert(0,1)
     return [maxsT,maxsV]
 
+def maxs4 (data):
+    """Takes the data, returns the indices of the maxima in value.
+    
+    Let's find maxima of variances in the data:
+    v1 = np.var(x1x, axis=0)
+    plt.plot(time, v1)
+    plt.plot(time[maxs4(v1)], v1[maxs4(v1)])"""
+    a = (np.diff(np.sign(np.diff(data)))<0).nonzero()[0]+1
+    return a
+
 
 def me(x):
     return maxs(extr(x))
@@ -319,6 +329,8 @@ def me2(x):
 def me3(x, N, N2):
     return me(run_mean(np.mean(x, axis=0),N,N2))
 
+def me4(x):
+    return maxs3(extr(x))
 
 def run_mean(x, N, N2=0):
     """Running average
@@ -431,6 +443,31 @@ def r_sq(function, xdata, ydata, popt):
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((ydata-np.mean(ydata))**2)
     return (1-(ss_res/ss_tot))
+
+def per(xnx, limit):
+    """Function for finding the periods.
+    Input: x1x[0]-type data (only for 1 specific oscillator)
+    Output: np.array of periods for a given oscillator after "limit"
+    Uses maxs4() to extract the maxima."""
+    
+    d = t[maxs4(xnx)] # timepoint values with maxima on them
+    d = d[np.where(d>limit)]
+    return np.diff(d)
+
+def pers(xnx, limit):
+    """Function for finding the periods for the whole dataset.
+    Input: data in x1x-type
+    Averages periods of sigular oscillators.
+    Ouput: [mean_periods of the given xnx file]
+    """
+    mean_periods=[]
+    for i in range(len(xnx)):
+        d = t[maxs4(xnx[i])] # timepoint values with maxima on them
+        d = d[np.where(d>limit)] # Take only timepoints values after limit hours
+        mean_periods.append(np.mean(np.diff(d))) # np.diff(d) - gives you periods; # Appends mean periods (1st entry - mean period of the 1st oscillator)
+    return mean_periods
+
+    
 
 """
 ###################################################################################################################################
@@ -1778,8 +1815,33 @@ plt.xlim(0,100)
 plt.ylabel('x-coordinate')
 plt.xlabel('time, hours')
 plt.title('Desync in heterogenous system, N=10', fontsize=26)
+##########
 
+Noise example
 
+n=1
+t9 = np.linspace(0,100,100*20)
+state09 = [1,0]*n
+params9 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n)
+x91 = ode_rand3(n,t9,state09,params9,0.05)
+x92 = ode_rand3(n,t9,state09,params9,0.1)
+x93 = ode_rand3(n,t9,state09,params9,0.2)
+x94 = ode_rand3(n,t9,state09,params9,0.5)
+
+x91x = sep(x91[1])[0]
+x92x = sep(x92[1])[0]
+x93x = sep(x93[1])[0]
+x94x = sep(x94[1])[0]
+
+plt.figure(figsize=(14,10))
+plt.plot(t9[:1801],x91x[0], label='E=0.05')
+plt.plot(t9[:1801],x92x[0], label='E=0.1')
+plt.plot(t9[:1801],x93x[0], label='E=0.2')
+#plt.plot(t9[:1801],x94x[0], label='E=0.5')
+plt.legend()
+plt.title('Examples of noisy oscillations', fontsize=26)
+plt.ylabel('x-coordinate')
+plt.xlabel('time, hours')
 """
 
 """
