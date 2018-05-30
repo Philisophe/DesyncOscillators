@@ -34,6 +34,9 @@ x3x = sep(x3)[0]
 x4x = sep(x4)[0]
 x5x = sep(x5)[0]
 x6x = sep(x6)[0]
+x7x = sep(x7)[0]
+x8x = sep(x8)[0]
+x9x = sep(x9)[0]
 
 per1  = pers(x1x,300)
 per2  = pers(x2x,300)
@@ -69,18 +72,30 @@ x1 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Heterogeneit
 t2 = np.linspace(0,2000,10000)
 x5 = odeint(oscillator_system, state0, t2, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1*i) for i in np.random.randn(n)],[0.0]*n,[0.02]*n, [0.0]*n)))
 x6 = odeint(oscillator_system, state0, t2, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1*i) for i in np.random.randn(n)],[0.0]*n,[0.03]*n, [0.0]*n)))
-x5x = sep(x5)[0]
-x6x = sep(x6)[0]
+x7 = odeint(oscillator_system, state0, t2, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1*i) for i in np.random.randn(n)],[0.0]*n,[0.04]*n, [0.0]*n)))
+x8 = odeint(oscillator_system, state0, t2, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1*i) for i in np.random.randn(n)],[0.0]*n,[0.05]*n, [0.0]*n)))
+x9 = odeint(oscillator_system, state0, t2, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
 
 # Now some noisy shit
-params3 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n)
-t3 = np.linspace(0,700,700*20)
-x7 = ode_rand3(n,t3,state0,params3,0.05)
-x8 = ode_rand3(n,t3,state0,params3,0.1)
-x9 = ode_rand3(n,t3,state0,params3,0.2)
-x7x = sep(x7[1])[0]
-x8x = sep(x8[1])[0]
-x9x = sep(x9[1])[0]
+n = 1000 # Number of oscillators
+params7 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n)
+params8 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.02]*n)
+params9 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.03]*n)
+params10 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.04]*n)
+params11 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.05]*n)
+
+t3 = np.linspace(0,1000,1000*20)
+x7 = ode_rand3(n,t3,state0,params7,0.2)
+x8 = ode_rand3(n,t3,state0,params8,0.2)
+x9 = ode_rand3(n,t3,state0,params9,0.2)
+x10 = ode_rand3(n,t3,state0,params10,0.2)
+x11 = ode_rand3(n,t3,state0,params11,0.2)
+
+x7x = sep(x7[1])[0] #K=0
+x8x = sep(x8[1])[0] #K=0.02
+x9x = sep(x9[1])[0] #K=0.03
+x10x = sep(x10[1])[0] #K=0.04
+x11x = sep(x10[1])[0] #K=0.05
 ######
 
 
@@ -311,8 +326,34 @@ plt.legend()
 
 ###################################################################
 
-Coupling
+NOISY DATA
 ###########################
+plt.figure(figsize=(14,10))
+
+plt.plot(x7[0], np.mean(x7x, axis=0), 'k-', label='E=0.05')
+plt.plot(x8[0], np.mean(x8x, axis=0), 'b-', label='E=0.1')
+plt.plot(x9[0], np.mean(x9x, axis=0), 'm-', label='E=0.2')
+#plt.plot(x4[0], np.mean(x4[1], axis=0), 'r-', label='E=0.5')
+
+plt.xlabel('time, hours')
+plt.ylabel('x-coordinate')
+plt.title('Mean (x-coodrinate) of coupled noisy oscillators', fontsize=22)
+plt.legend()
+
+###
+RAW data
+##
+plt.figure(figsize=(34,8))
+for i in range(600):
+    plt.plot(x8[0], x8x[i])
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+#plt.ylim(-1.5,2.5)
+plt.xlim(-10,400)
+plt.title('x-coordinate of 1000 non-coupled noisy oscillators E=0.2 K=0', fontsize=22)
+plt.legend()
+plt.show()
+#####
 
 
 
@@ -326,6 +367,7 @@ per7  = pers(x7x,300)
 per8  = pers(x8x,300)
 per9  = pers(x9x,300)
 per10  = pers(x10x,300)
+per11  = pers(x11x,300)
 plt.hist(per7, label = 'K=0.01')
 plt.hist(per8, label = 'K=0.02')
 plt.hist(per9, label = 'K=0.04')
@@ -344,4 +386,16 @@ plt.hist(per1, bins1, label = 'K = 0.01', density=True)
 plt.legend()
 plt.xlim(22,26)
 plt.grid()
+
+
+
+###
+Time of execution estimation
+#
+import cProfile
+import re
+n1=10 
+params1 = ([0.1]*n1,[1]*n1,[(np.pi*2)/24]*n1,[0.0]*n1,[0.05]*n1)
+state01 = [1,0]*n1
+cProfile.run('ode_rand3(n1,np.linspace(0,1000,1000*20),state01,params1,0.1)')
 """
