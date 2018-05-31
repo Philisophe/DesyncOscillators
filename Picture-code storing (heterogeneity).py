@@ -1073,6 +1073,58 @@ plt.show()
 
 
 
+#######################################################################################################
+#######################################################################################################
+
+HALF-LIFE ESTIMATION
+
+#################################
+
+# Here everything is made in Desmos.com
+# I plotted the popt1,popt2,popt3,popt4 coeffiients as the equations
+# y_1=-0.00320615x\ +\ 1.1648234
+#y_2\ =\ -0.00565904x\ +\ 1.12812701
+#y_3\ =\ -0.0087395x\ +\ 1.13726102
+# y_4\ =\ -0.01104678x\ +\ 1.1159214
+#y\ =\ 0.5
+# Then, set the axes as needed and found the intersection points.
+
+intersection are at timepoints
+
+55.756 (t1/2 for s=2); 72.917 (t1/2 for s=1.5); 110.995(t1/2 for s=1); 207.359(t1/2 for s=0.5)
+
+halflife = [207.359, 110.995, 72.917, 55.756]
+sigma = [0.5, 1.0, 1.5, 2.0]
+plt.plot(sigma, halflife, 'o-')
+plt.xlabel('sigma')
+plt.ylabel('t1/2 to decay')
+plt.title('Half-life of mean of heterogenous system')
+plt.grid()
+
+##########
+Let's generate more points on the half-life graph
+t = np.linspace(0,600,6000)
+n=1000
+state0=[1,0]*n
+x5 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.25*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x6 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.4*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x7 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.75*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x8 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1.25*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x9 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1.75*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x10 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2.25*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x11 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+##########
+
+
+
+
+
+
+
+
+
+
+
 
 
 
