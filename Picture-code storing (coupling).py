@@ -67,6 +67,7 @@ x1 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Heterogeneit
 
 
 
+
 ######
 # Checking where is the asymptote for some data
 t2 = np.linspace(0,2000,10000)
@@ -95,7 +96,21 @@ x7x = sep(x7[1])[0] #K=0
 x8x = sep(x8[1])[0] #K=0.02
 x9x = sep(x9[1])[0] #K=0.03
 x10x = sep(x10[1])[0] #K=0.04
-x11x = sep(x10[1])[0] #K=0.05
+x11x = sep(x11[1])[0] #K=0.05
+#########
+
+x1 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.0.npy")
+x2 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.01.npy")
+x3 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.02.npy")
+x4 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.03.npy")
+x5 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.04.npy")
+t = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 time.npy")
+
+x1x = sep(x1)[0]
+x2x = sep(x2)[0]
+x3x = sep(x3)[0]
+x4x = sep(x4)[0]
+x5x = sep(x5)[0]
 ######
 
 
@@ -258,7 +273,7 @@ plt.grid()
 plt.show()
 
 
-########
+################################
 VAR (phase) (raw, smooth, maxima)
 ########
 ph1 = phvar(x1)[0]
@@ -328,32 +343,293 @@ plt.legend()
 
 NOISY DATA
 ###########################
-plt.figure(figsize=(14,10))
 
-plt.plot(x7[0], np.mean(x7x, axis=0), 'k-', label='E=0.05')
-plt.plot(x8[0], np.mean(x8x, axis=0), 'b-', label='E=0.1')
-plt.plot(x9[0], np.mean(x9x, axis=0), 'm-', label='E=0.2')
-#plt.plot(x4[0], np.mean(x4[1], axis=0), 'r-', label='E=0.5')
-
-plt.xlabel('time, hours')
-plt.ylabel('x-coordinate')
-plt.title('Mean (x-coodrinate) of coupled noisy oscillators', fontsize=22)
-plt.legend()
-
-###
 RAW data
 ##
-plt.figure(figsize=(34,8))
+plt.figure(figsize=(30,8))
 for i in range(600):
     plt.plot(x8[0], x8x[i])
 plt.ylabel ('x-coordinate')
 plt.xlabel ('time, hours')
 #plt.ylim(-1.5,2.5)
-plt.xlim(-10,400)
+plt.xlim(400,600)
 plt.title('x-coordinate of 1000 non-coupled noisy oscillators E=0.2 K=0', fontsize=22)
 plt.legend()
 plt.show()
 #####
+
+
+
+#######
+MEAN
+####
+m1 = np.mean(x1x, axis=0)
+m2 = np.mean(x2x, axis=0)
+m3 = np.mean(x3x, axis=0)
+m4 = np.mean(x4x, axis=0)
+m5 = np.mean(x5x, axis=0)
+
+plt.figure(figsize=(18,10))
+plt.plot(t, np.mean(x1x, axis=0), '--', label='E=0.2 K=0')
+plt.plot(t, np.mean(x2x, axis=0), 'k-', label='E=0.2 K=0.01')
+plt.plot(t, np.mean(x3x, axis=0), 'b-', label='E=0.2 K=0.02')
+plt.plot(t, np.mean(x4x, axis=0), 'm-', label='E=0.2 K=0.03')
+plt.plot(t, np.mean(x5x, axis=0), 'r-', label='E=0.2 K=0.04')
+#plt.plot(t, np.mean(x3x, axis=0), 'm-', label='E=0.2 K=0.05')
+plt.xlabel('time, hours')
+plt.ylabel('x-coordinate')
+plt.title('Mean (x-coodrinate) of coupled noisy oscillators', fontsize=22)
+plt.legend()
+
+######
+MEAN(only maxima + IC)
+####
+plt.figure(figsize=(22,10))
+plt.plot (np.insert(t[maxs4(m1)],0,0), np.insert(m1[maxs4(m1)],0,1),'go--', label = 'E=0.2, K=0.0 maxima')
+#plt.plot(t,m1,'g--', label = 'E=0.2, K=0.0 data')
+
+plt.plot (np.insert(t[maxs4(m2)],0,0), np.insert(m2[maxs4(m2)],0,1),'ko-', label = 'E=0.2, K=0.01 maxima')
+#plt.plot(t,m2,'k-', label = 'E=0.2, K=0.01 data')
+
+plt.plot (np.insert(t[maxs4(m3)],0,0), np.insert(m3[maxs4(m3)],0,1),'bo-', label = 'E=0.2, K=0.02 maxima')
+#plt.plot(t,m3,'b-', label = 'E=0.2, K=0.02 data')
+
+plt.plot (np.insert(t[maxs4(m4)],0,0), np.insert(m4[maxs4(m4)],0,1),'mo-', label = 'E=0.2, K=0.03 maxima')
+#plt.plot(t, m4,'m-', label = 'E=0.2, K=0.03 data')
+
+plt.plot (np.insert(t[maxs4(m5)],0,0), np.insert(m5[maxs4(m5)],0,1),'ro-', label = 'E=0.2, K=0.04 maxima')
+#plt.plot(t, m5,'r-', label = 'E=0.2, K=0.04 data')
+
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+#plt.ylim(-1.5,2.5)
+#plt.xlim(30,50)
+plt.title('Maxima of mean (x-coordinate) of coupled noisy oscillators', fontsize=22)
+plt.legend()
+#plt.grid()
+plt.show()
+
+#######
+MEAN(only maxima + IC) smooth
+########
+m1s = run_mean(m1, 60)
+m2s = run_mean(m2, 60)
+m3s = run_mean(m3, 60)
+m4s = run_mean(m4, 60)
+m5s = run_mean(m5, 60)
+
+plt.figure(figsize=(22,10))
+
+plt.plot (np.insert(t[maxs4(m1s)],0,0), np.insert(m1s[maxs4(m1s)],0,1),'go--', label = 'E=0.2, K=0.0 maxima')
+#plt.plot(t[:17942],m1s,'g--', label = 'E=0.2, K=0.0 data')
+plt.plot (np.insert(t[maxs4(m2s)],0,0), np.insert(m2s[maxs4(m2s)],0,1),'ko-', label = 'E=0.2, K=0.01 maxima')
+#plt.plot(t[:17942],m2s,'k-', label = 'E=0.2, K=0.01 data')
+plt.plot (np.insert(t[maxs4(m3s)],0,0), np.insert(m3s[maxs4(m3s)],0,1),'bo-', label = 'E=0.2, K=0.02 maxima')
+#plt.plot(t[:17942],m3s,'b-', label = 'E=0.2, K=0.02 data')
+plt.plot (np.insert(t[maxs4(m4s)],0,0), np.insert(m4s[maxs4(m4s)],0,1),'mo-', label = 'E=0.2, K=0.03 maxima')
+#plt.plot(t[:17942],m4s,'m-', label = 'E=0.2, K=0.03 data')
+plt.plot (np.insert(t[maxs4(m5s)],0,0), np.insert(m5s[maxs4(m5s)],0,1),'ro-', label = 'E=0.2, K=0.04 maxima')
+#plt.plot(t[:17942],m5s,'r-', label = 'E=0.2, K=0.04 data')
+
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+#plt.ylim(-1.5,2.5)
+#plt.xlim(30,50)
+plt.title('Maxima of mean (x-coordinate) of coupled noisy oscillators', fontsize=22)
+plt.legend()
+plt.grid()
+plt.show()
+
+
+#########################
+# Var(x) vs. time
+################
+v1=np.var(x1x,axis=0)
+v2=np.var(x2x,axis=0)
+v3=np.var(x3x,axis=0)
+v4=np.var(x4x,axis=0)
+v5=np.var(x5x,axis=0)
+
+plt.figure(figsize=(18,10))
+
+plt.plot (t, v1, label = 'E=0.2, K=0.0')
+plt.plot (t, v2, label = 'E=0.2, K=0.01')
+plt.plot (t, v3, label = 'E=0.2, K=0.02')
+plt.plot (t, v4, label = 'E=0.2, K=0.03')
+plt.plot (t, v5, label = 'E=0.2, K=0.04')
+
+plt.ylabel ('variance of x')
+plt.xlabel ('time, hours')
+plt.xlim(-40,840)
+plt.ylim(-0.02,0.59)
+plt.title ('Variance of x-coordinate of coupled noisy oscillators (raw)', fontsize=22)
+plt.legend()
+plt.grid()
+plt.show()
+
+############
+# Var(x) (smooth) maxima only vs. time
+##########
+v1s = run_mean(v1, 30)
+v2s = run_mean(v2, 30)
+v3s = run_mean(v3, 30)
+v4s = run_mean(v4, 30)
+v5s = run_mean(v5, 30)
+
+
+plt.figure(figsize=(18,10))
+plt.plot (t[maxs4(v1s)], v1s[maxs4(v1s)], label = 'E=0.2, K=0.0')
+plt.plot (t[maxs4(v2s)], v2s[maxs4(v2s)], label = 'E=0.2, K=0.01')
+plt.plot (t[maxs4(v3s)], v3s[maxs4(v3s)], label = 'E=0.2, K=0.02')
+plt.plot (t[maxs4(v4s)], v4s[maxs4(v4s)], label = 'E=0.2, K=0.03')
+plt.plot (t[maxs4(v5s)], v5s[maxs4(v5s)], label = 'E=0.2, K=0.04')
+
+plt.ylabel ('variance of x')
+plt.xlabel ('time, hours')
+#plt.xlim(-40,840)
+#plt.ylim(-0.02,0.59)
+plt.title ('Variance of x-coordinate of coupled noisy oscillators (smooth)', fontsize=22)
+plt.legend()
+plt.grid()
+plt.show()
+
+############
+Var(x) (smooth) (window 30)
+###########
+v1s = run_mean(v1, 30)
+v2s = run_mean(v2, 30)
+v3s = run_mean(v3, 30)
+v4s = run_mean(v4, 30)
+v5s = run_mean(v5, 30)
+
+plt.figure(figsize=(18,10))
+plt.plot (t[:17972], v1s, label = 'E=0.2, K=0.0')
+plt.plot (t[:17972], v2s, label = 'E=0.2, K=0.01')
+plt.plot (t[:17972], v3s, label = 'E=0.2, K=0.02')
+plt.plot (t[:17972], v4s, label = 'E=0.2, K=0.03')
+plt.plot (t[:17972], v5s, label = 'E=0.2, K=0.04')
+
+plt.ylabel ('variance of x')
+plt.xlabel ('time, hours')
+plt.xlim(-40,840)
+plt.ylim(-0.02,0.59)
+plt.title ('Variance of x-coordinate of coupled noisy oscillators (smooth)', fontsize=22)
+plt.legend()
+plt.grid()
+plt.show()
+
+########## window 240
+
+v1s = run_mean(v1, 240)
+v2s = run_mean(v2, 240)
+v3s = run_mean(v3, 240)
+v4s = run_mean(v4, 240)
+v5s = run_mean(v5, 240)
+plt.figure(figsize=(18,10))
+plt.plot (t[:17762], v1s, label = 'E=0.2, K=0.0')
+plt.plot (t[:17762], v2s, label = 'E=0.2, K=0.01')
+plt.plot (t[:17762], v3s, label = 'E=0.2, K=0.02')
+plt.plot (t[:17762], v4s, label = 'E=0.2, K=0.03')
+plt.plot (t[:17762], v5s, label = 'E=0.2, K=0.04')
+plt.ylabel ('variance of x')
+plt.xlabel ('time, hours')
+plt.xlim(-40,840)
+plt.ylim(-0.02,0.59)
+plt.title ('Variance of x-coordinate of coupled noisy oscillators (smooth)', fontsize=22)
+plt.legend()
+plt.grid()
+plt.show()
+###############################
+
+
+
+
+
+
+
+
+
+###########
+VAR (phase)
+###########
+ph1 = phvar(x1)[0]
+ph2 = phvar(x2)[0]
+ph3 = phvar(x3)[0]
+ph4 = phvar(x4)[0]
+ph5 = phvar(x5)[0]
+
+ph1rm = run_mean(ph1,40)
+ph2rm = run_mean(ph2,40)
+ph3rm = run_mean(ph3,40)
+ph4rm = run_mean(ph4,40)
+ph5rm = run_mean(ph5,40)
+
+#######
+Raw, smooth, maxima
+#######
+plt.figure(figsize=(14,10))
+#plt.plot (t[:6881], run_mean(phvar(x1)[0],120),'k--', label = 'K=0.05 run_mean')
+plt.plot (t, ph1,'--', label = 'K=0.0')
+plt.plot (t[maxs4(ph1)], ph1[maxs4(ph1)],'--o', label = 'K=0.0 maxima')
+
+#plt.plot (t[:6881], run_mean(phvar(x2)[0],120),'b--', label = 'K=0.1 run_mean')
+plt.plot (t, ph2,'k-', label = 'K=0.01')
+plt.plot (t[maxs4(ph2)], ph2[maxs4(ph2)],'ko', label = 'K=0.01 maxima')
+
+#plt.plot (t[:6881], run_mean(phvar(x3)[0],120),'m--', label = 'K=0.2 run_mean')
+plt.plot (t, ph3,'b-', label = 'K=0.02')
+plt.plot (t[maxs4(ph3)], ph3[maxs4(ph3)],'bo', label = 'K=0.02 maxima')
+
+#plt.plot (t[:6881], run_mean(phvar(x4)[0],120),'r--', label = 'K=0.5 run_mean')
+plt.plot (t, ph4,'m-', label = 'K=0.03')
+plt.plot (t[maxs4(ph4)], ph4[maxs4(ph4)],'mo', label = 'K=0.03 maxima')
+
+plt.plot (t, ph5,'r-', label = 'K=0.04')
+plt.plot (t[maxs4(ph4)], ph4[maxs4(ph4)],'ro', label = 'K=0.04 maxima')
+
+plt.ylabel ('Variance of phase')
+plt.xlabel ('time, hours')
+plt.title('Variance of phase of coupled noisy oscillators (raw, smooth and maxima)', fontsize=26)
+plt.xlim(-20,840)
+plt.ylim(0,3050)
+plt.grid()
+plt.legend()
+plt.show()
+
+
+###### Smoothened
+ph1rm = run_mean(ph1,120)
+ph2rm = run_mean(ph2,120)
+ph3rm = run_mean(ph3,120)
+ph4rm = run_mean(ph4,120)
+ph5rm = run_mean(ph5,120)
+
+plt.figure(figsize=(14,10))
+
+plt.plot (t[maxs4(ph1rm)], ph1rm[maxs4(ph1rm)],'g--', label = 'K=0.0 maxima')
+plt.plot (t[maxs4(ph2rm)], ph2rm[maxs4(ph2rm)],'k-', label = 'K=0.01 maxima')
+plt.plot (t[maxs4(ph3rm)], ph3rm[maxs4(ph3rm)],'b-', label = 'K=0.02 maxima')
+plt.plot (t[maxs4(ph4rm)], ph4rm[maxs4(ph4rm)],'m-', label = 'K=0.03 maxima')
+plt.plot (t[maxs4(ph5rm)], ph5rm[maxs4(ph5rm)],'r-', label = 'K=0.04 maxima')
+
+plt.ylabel ('Variance of phase')
+plt.xlabel ('time, hours')
+plt.title('Variance of phase of coupled noisy oscillators (maxima, smoothed)', fontsize=26)
+plt.xlim(-20,840)
+plt.ylim(0,3050)
+plt.grid()
+plt.legend(loc=4)
+plt.show()
+
+
+
+
+
+
+
+
+
+
 
 
 
