@@ -1288,6 +1288,66 @@ x61 = ode_rand3(n,t6,state06,params6,0.15)
 x62 = ode_rand3(n,t6,state06,params6,0.175)
 x63 = ode_rand3(n,t6,state06,params6,0.25)
 x64 = ode_rand3(n,t6,state06,params6,0.3)
+
+#####
+t = np.linspace(0,600,6000)
+n=1000
+state0=[1,0]*n
+x5 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.25*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x6 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.4*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x7 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 0.75*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x8 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1.25*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x9 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 1.75*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x10 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2.25*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+x11 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
+#
+t6 = np.linspace(0,600,600*20)
+state06 = [1,0]*n
+params6 = ([0.1]*n,[1]*n,[(np.pi*2)/24]*n,[0.0]*n,[0.0]*n)
+x61 = ode_rand3(n,t6,state06,params6,0.15)
+x62 = ode_rand3(n,t6,state06,params6,0.175)
+x63 = ode_rand3(n,t6,state06,params6,0.25)
+x64 = ode_rand3(n,t6,state06,params6,0.3)
+
+
+
+x1 = np.load("/home/kalashnikov/Code/Variables for my code/Noise/Other state0/2nd attempt/1000 oscillators with E 0.15 and state0 [1,0] v2.npy")
+x2 = np.load("/home/kalashnikov/Code/Variables for my code/Noise/Other state0/2nd attempt/1000 oscillators with E 0.175 and state0 [1,0] v2.npy")
+x3 = np.load("/home/kalashnikov/Code/Variables for my code/Noise/Other state0/2nd attempt/1000 oscillators with E 0.25 and state0 [1,0] v2.npy")
+x4 = np.load("/home/kalashnikov/Code/Variables for my code/Noise/Other state0/2nd attempt/1000 oscillators with E 0.3 and state0 [1,0] v2.npy")
+
+x1x = sep(x1)[0]
+x2x = sep(x2)[0]
+x3x = sep(x3)[0]
+x4x = sep(x4)[0]
+
+m1 = me4 (run_mean (np.mean(x1x, axis=0), 30, 0))
+m2 = me4 (run_mean (np.mean(x2x, axis=0), 30, 0))
+m3 = me4 (run_mean (np.mean(x3x, axis=0), 30, 0))
+m4 = me4 (run_mean (np.mean(x4x, axis=0), 30, 0))
+
+xdata1 = np.array(m1[0])
+ydata1 = np.array(m1[1])
+xdata2 = np.array(m2[0])
+ydata2 = np.array(m2[1])
+xdata3 = np.array(m3[0])
+ydata3 = np.array(m3[1])
+xdata4 = np.array(m4[0])
+ydata4 = np.array(m4[1])
+
+
+popt1 = [0.93533, 0.00310418, 0.0659787]
+popt2 = [0.95551, 0.0045522, 0.00612831]
+
+popt3 = [1.01966, 0.00865129, -1.0107933]
+popt4 = [0.985263, 0.0156055, 0.0262524]
+
+
+# From Desmos
+halflife = [20.961, 46.922, 79.902, 127.555, 170.992, 247.346, 607.18] # For E=0.05 it was too hard to find
+E = [0.5, 0.3, 0.25, 0.2, 0.175, 0.15, 0.1] # Noise strength
+
+#####
 """
 
 

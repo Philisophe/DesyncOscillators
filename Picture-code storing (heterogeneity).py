@@ -1114,17 +1114,134 @@ x9 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 
 x10 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2.25*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
 x11 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/(24 + 2.5*i) for i in np.random.randn(n)],[0.0]*n,[0.0]*n, [0.0]*n)))
 ##########
+After it
+
+x1 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 0.25 and state0 [1,0].npy")
+x2 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 0.4 and state0 [1,0].npy")
+x3 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 0.75 and state0 [1,0].npy")
+x4 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 1.25 and state0 [1,0].npy")
+x5 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 1.75 and state0 [1,0].npy")
+x6 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 2.25 and state0 [1,0].npy")
+x7 = np.load("/home/kalashnikov/Code/Variables for my code/Heterogeneity/Other state0/1000 oscillators with sigma 2.5 and state0 [1,0].npy")
+
+x1x = sep(x1)[0]
+x2x = sep(x2)[0]
+x3x = sep(x3)[0]
+x4x = sep(x4)[0]
+x5x = sep(x5)[0]
+x6x = sep(x6)[0]
+x7x = sep(x7)[0]
+
+xdata1 = np.array(me4(np.mean(x1x, axis=0))[0])
+ydata1 = np.array(me4(np.mean(x1x, axis=0))[1])
+xdata2 = np.array(me4(np.mean(x2x, axis=0))[0])
+ydata2 = np.array(me4(np.mean(x2x, axis=0))[1])
+xdata3 = np.array(me4(np.mean(x3x, axis=0))[0])
+ydata3 = np.array(me4(np.mean(x3x, axis=0))[1])
+xdata4 = np.array(me4(np.mean(x4x, axis=0))[0])
+ydata4 = np.array(me4(np.mean(x4x, axis=0))[1])
+xdata5 = np.array(me4(np.mean(x5x, axis=0))[0])
+ydata5 = np.array(me4(np.mean(x5x, axis=0))[1])
+xdata6 = np.array(me4(np.mean(x6x, axis=0))[0])
+ydata6 = np.array(me4(np.mean(x6x, axis=0))[1])
+xdata7 = np.array(me4(np.mean(x7x, axis=0))[0])
+ydata7 = np.array(me4(np.mean(x7x, axis=0))[1])
+
+popt1,pcov1 = curve_fit(lin,xdata1[8:18],ydata1[8:18])
+popt2,pcov2 = curve_fit(lin,xdata2[6:13], ydata2[6:13])
+popt3,pcov3 = curve_fit(lin,xdata3[4:9], ydata3[4:9])
+popt4,pcov4 = curve_fit(lin,xdata4[1:4], ydata4[1:4])
+#________________________________________________
+popt5,pcov5 = curve_fit(lin,xdata5[1:4],ydata5[1:4])
+popt6,pcov6 = curve_fit(lin,xdata6[1:3], ydata6[1:3])
+popt7,pcov7 = curve_fit(lin,xdata7[1:3], ydata7[1:3])
+
+plt.figure(figsize=(16,12))
+plt.rc('legend', fontsize=16)    # legend fontsize
+plt.plot(xdata1,ydata1, 'ko', label = 's=0.25 maxima')
+plt.plot(xdata1, lin(xdata1, *popt1), 'k--', label = 's=0.25 fit')
+plt.plot(xdata2,ydata2, 'bo', label = 's=0.4 maxima')
+plt.plot(xdata2, lin(xdata2, *popt2), 'b--', label = 's=0.4 fit')
+plt.plot(xdata3,ydata3, 'mo', label = 's=0.75 maxima')
+plt.plot(xdata3, lin(xdata3, *popt3),'m--', label = 's=0.75 fit')
+plt.plot(xdata4,ydata4, 'ro', label = 's=1.25 maxima')
+plt.plot(xdata4, lin(xdata4, *popt4), 'r--', label = 's=1.25 fit')
+
+plt.plot(xdata5,ydata5, 'o', label = 's=1.75 maxima')
+plt.plot(xdata5, lin(xdata5, *popt5), '--', label = 's=1.75 fit')
+plt.plot(xdata6,ydata6, 'o', label = 's=2.25 maxima')
+plt.plot(xdata6, lin(xdata6, *popt6), '--', label = 's=2.25 fit')
+plt.plot(xdata7,ydata7, 'o', label = 's=2.5 maxima')
+plt.plot(xdata7, lin(xdata7, *popt7),'--', label = 's=2.5 fit')
+
+plt.plot(np.linspace(0,600,600), [0.23]*600, '-', label = 'Lowest cut-off limit')
+plt.plot(np.linspace(0,180,180), [0.945]*180, '-', label = 'Highest cut-off limit')
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+plt.xlim(-15,600)
+plt.ylim(-0.2,1.2)
+plt.title('Mean (x-coord) of heterogenous oscillators fitted to the line', fontsize=26)
+plt.legend()
+plt.grid()
 
 
 
+coeff = [popt1,popt2,popt3,popt4,popt5,popt6,popt7]
+
+############
+halflife = [423.53, 273.705, 207.359, 150.9, 110.995, 88.462, 72.917,60.206, 55.756, 48.12, 44.07]
+sigma = [0.25, 0.4, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5]
 
 
 
+###########
+NOW PLOT
+
+double x-axis
+######
+halflifeS = [423.53, 273.705, 207.359, 150.9, 110.995, 88.462, 72.917,60.206, 55.756, 48.12, 44.07]
+sigma = [0.25, 0.4, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5]
+
+#halflifeE = [20.961, 127.555, 607.18] # For E=0.05 it was too hard to find
+#E = [0.5, 0.2, 0.1]
+
+halflifeE = [20.961, 46.922, 79.902, 127.555, 170.992, 247.346, 607.18] # For E=0.05 it was too hard to find
+E = [0.5, 0.3, 0.25, 0.2, 0.175, 0.15, 0.1] # Noise strength
+
+fig, ax1 = plt.subplots(figsize=(8,8))
+color = 'tab:red'
+ax1.set_xlabel('sigma' + '\n' + '(heterogeneity strength)', color=color)
+ax1.set_ylabel('time to decay (h)')
+ax1.plot(sigma, halflifeS, 'o-', color=color)
+ax1.tick_params(axis='x', labelcolor=color)
+
+ax2 = ax1.twiny()
+color = 'tab:blue'
+ax2.set_xlabel('E (noise strength)', color=color)
+ax2.plot(E, halflifeE, 'o-', color=color)
+ax2.tick_params(axis='x', labelcolor=color)
+
+fig.tight_layout()
+#plt.title('Half-life to decay for mean signal in different systems', fontsize=20)
+plt.show()
 
 
+### Simple plot
+plt.figure(figsize=(8,6))
+plt.plot(sigma, halflifeS, 'o-')
+plt.xlabel('sigma')
+plt.ylabel('t1/2 to decay')
+plt.title('Half-life of mean of heterogenous system')
+plt.grid()
 
-
-
+### Both with 1 x-axis
+plt.figure(figsize=(8,6))
+plt.plot(sigma, halflifeS, 'o-')
+plt.plot(E, halflifeE,'o-')
+plt.xlabel('desync strength')
+plt.ylabel('t1/2 to decay')
+plt.title('Half-life of mean of heterogenous/noisy system')
+plt.grid()
 
 
 
