@@ -1244,5 +1244,20 @@ plt.title('Half-life of mean of heterogenous/noisy system')
 plt.grid()
 
 
+het = np.column_stack((sigma,halflifeS))
+noise = np.column_stack((E,halflifeE))
+
+###################################
+
+###################################
+Simple sine experiment
+ta = np.linspace(0,100,1000)
+a = np.sin(ta)
+b = np.sin(1.02*ta)
+abmax = np.column_stack((me4(a)[0],me4(b)[0]))
+phab = list(map(lambda x,y:x-y, me4(a)[0],me4(b)[0]))
+plt.plot(np.var(abmax, axis=1)) # The variance
+#
+plt.plot(phab) # The phase difference
 
 """
