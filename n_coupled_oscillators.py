@@ -1875,4 +1875,18 @@ x61x = sep(x61[1])[0]
 x62x = sep(x62[1])[0]
 x63x = sep(x63[1])[0]
 x64x = sep(x64[1])[0]
+
+######################################################################################################
+########################################################################################################
+
+#Kind of animation (not really)
+
+for i in range(100):
+    plt.figure(figsize=(8,8))
+    plt.plot(x1x,x1y, 'b-', label='limit cycle')
+    plt.plot(x1x[i],x1y[i], 'ro')
+    plt.xlabel('x-coord')
+    plt.ylabel('y-coord')
+    plt.show()
+
 """

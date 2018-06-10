@@ -142,6 +142,26 @@ plt.legend()
 plt.show()
 
 
+#######
+RAW data (v.2)
+plt.rc('axes', titlesize=22)     # fontsize of the axes title
+plt.rc('xtick', labelsize=22)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=22)    # fontsize of the tick labels
+
+plt.figure(figsize=(11,8)) 
+for i in range(600):
+    plt.plot(t, x4x[i])
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+#plt.ylim(-1.5,2.5)
+plt.xlim(220,300)
+plt.title('sigma=1; K=0.05', fontsize=24)
+#plt.legend()
+plt.show()
+#####
+
+
+
 
 #MEAN VS TIME
 m1 = np.mean(x1x,axis=0)
@@ -339,7 +359,9 @@ plt.grid()
 plt.legend()
 
 
-###################################################################
+####################################################################################
+#################################################################################
+#############################################################################
 
 NOISY DATA
 ###########################
@@ -627,14 +649,147 @@ plt.show()
 
 
 
+#########################################
+Only MEAN final
+####################################
+       NOISY
+####################
+x1 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.0.npy")
+x2 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.01.npy")
+x3 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.02.npy")
+x4 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.03.npy")
+t = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 time.npy")
+x1x = sep(x1)[0]
+x2x = sep(x2)[0]
+x3x = sep(x3)[0]
+x4x = sep(x4)[0]
+
+m1 = np.mean(x1x, axis=0)
+m2 = np.mean(x2x, axis=0)
+m3 = np.mean(x3x, axis=0)
+m4 = np.mean(x4x, axis=0)
+
+m1s = run_mean(m1, 60)
+m2s = run_mean(m2, 60)
+m3s = run_mean(m3, 60)
+m4s = run_mean(m4, 60)
+
+plt.rc('font', size=22)          # controls default text sizes
+plt.rc('axes', titlesize=24)     # fontsize of the axes title
+plt.rc('axes', labelsize=26)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=24)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=24)    # fontsize of the tick labels
+plt.rc('legend', fontsize=24)    # legend fontsize
+plt.rc('figure', titlesize=28)  # fontsize of the figure title
+
+plt.figure(figsize=(14,10))
+plt.plot (np.insert(t[maxs4(m1s)],0,0), np.insert(m1s[maxs4(m1s)],0,1),'go--', label = 'K=0')
+#plt.plot(t[:17942],m1s,'g--', label = 'E=0.2, K=0.0 data')
+plt.plot (np.insert(t[maxs4(m2s)],0,0), np.insert(m2s[maxs4(m2s)],0,1),'bo-', label = 'K=0.01')
+#plt.plot(t[:17942],m2s,'k-', label = 'E=0.2, K=0.01 data')
+plt.plot (np.insert(t[maxs4(m3s)],0,0), np.insert(m3s[maxs4(m3s)],0,1),'mo-', label = 'K=0.02')
+#plt.plot(t[:17942],m3s,'b-', label = 'E=0.2, K=0.02 data')
+plt.plot (np.insert(t[maxs4(m4s)],0,0), np.insert(m4s[maxs4(m4s)],0,1),'ro-', label = 'K=0.03')
+#plt.plot(t[:17942],m4s,'m-', label = 'E=0.2, K=0.03 data')
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+plt.ylim(-0.02,1.25)
+plt.xlim(-20,620)
+plt.title('Maxima of mean (x) of coupled noisy oscillators for E=0.2', fontsize=26)
+plt.legend(loc=3)
+plt.grid()
+plt.show()
 
 
 
 
+##########################
+HETERO
+##############
+t = np.linspace(0, 700, 7000)
+n = 1000
+state0 = [1,0]*n
+
+x1 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Heterogeneity/1000 coupled oscillators without noise s=1 and K=0.npy")
+x2 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Heterogeneity/1000 coupled oscillators without noise s=1 and K=0.02.npy")
+x3 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Heterogeneity/1000 coupled oscillators without noise s=1 and K=0.03.npy")
+x4 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Heterogeneity/1000 coupled oscillators without noise s=1 and K=0.04.npy")
+x1x = sep(x1)[0]
+x2x = sep(x2)[0]
+x3x = sep(x3)[0]
+x4x = sep(x4)[0]
+x5x = sep(x5)[0]
+
+m1 = np.mean(x1x,axis=0)
+m2 = np.mean(x2x,axis=0)
+m3 = np.mean(x3x,axis=0)
+m4 = np.mean(x4x,axis=0)
+m5 = np.mean(x5x,axis=0)
 
 
+plt.figure(figsize=(14,10))
+plt.plot (np.insert(t[maxs4(m1)],0,0), np.insert(m1[maxs4(m1)],0,1),'go--', label = 'K=0')
+#plt.plot(t,m1,'k-', label = 's=1, K=0.02 data')
+plt.plot (np.insert(t[maxs4(m2)],0,0), np.insert(m2[maxs4(m2)],0,1),'bo-', label = 'K=0.02')
+#plt.plot(t,m2,'b-', label = 's=1, K=0.03 data')
+plt.plot (np.insert(t[maxs4(m3)],0,0), np.insert(m3[maxs4(m3)],0,1),'mo-', label = 'K=0.03')
+#plt.plot(t,m3,'m-', label = 's=1, K=0.04 data')
+plt.plot (np.insert(t[maxs4(m4)],0,0), np.insert(m4[maxs4(m4)],0,1),'ro-', label = 'K=0.04')
+#plt.plot(t, m4,'r-', label = 's=1, K=0.05 data')
+#plt.plot (np.insert(t[maxs4(m5)],0,0), np.insert(m5[maxs4(m5)],0,1),'ro-', label = 'K=0.05')
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+plt.ylim(-0.02,1.25)
+plt.xlim(-20,620)
+plt.title('Maxima of mean(x) of coupled heterog. oscillators for sigma=1', fontsize=26)
+plt.legend(loc=3)
+plt.grid()
+plt.show()
 
+############
+RAW DATA
 
+#####
+HETERO
+#####
+x2 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Heterogeneity/1000 coupled oscillators without noise s=1 and K=0.npy")
+x2x = sep(x2)[0]
+t2 = np.linspace(0, 700, 7000)
+plt.rc('legend', fontsize=26)    # legend fontsize
+plt.figure(figsize=(16,10))
+for i in range(40):
+    plt.plot(t2, x2x[i])
+
+plt.plot(t2,np.mean(x2x, axis=0),'k-', lw=4, label='mean')
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+plt.ylim(-1.7,1.7)
+plt.xlim(0,300)
+plt.title('Desynchronization of heterog. oscillators with sigma=1', fontsize=26)
+plt.legend()
+plt.show()
+
+######
+NOISY
+######
+x1x = sep(x1)[0]
+x1 = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 and K=0.0.npy")
+t = np.load("/home/kalashnikov/Code/Variables for my code/Coupling/Noise/1000 coupled oscillators without heterogeneity with noise E=0.2 time.npy")
+
+plt.rc('legend', fontsize=26)    # legend fontsize
+plt.figure(figsize=(16,10))
+for i in range(40):
+    plt.plot(t, x1x[i])
+
+plt.plot(t,np.mean(x1x, axis=0),'k-', lw=3, label='mean')
+plt.ylabel ('x-coordinate')
+plt.xlabel ('time, hours')
+plt.ylim(-1.7,1.7)
+plt.xlim(0,300)
+plt.title('Desynchronization of noisy oscillators with E=0.2', fontsize=26)
+plt.legend()
+plt.show()
+##########
 
 
 

@@ -1260,4 +1260,41 @@ plt.plot(np.var(abmax, axis=1)) # The variance
 #
 plt.plot(phab) # The phase difference
 
+
+
+
+#################
+# Animation created!
+
+t = np.linspace(0,100,500)
+n=1
+state0=[1,0]
+
+x1 = odeint(oscillator_system, state0, t, args = (([0.1]*n,[1]*n,[(np.pi*2)/24],[0.0]*n,[0.0]*n, [0.0]*n)))
+x1x = x1[:,0]
+x1y = x1[:,1]
+
+fig = plt.figure()
+ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1.2, 1.2), ylim=(-1.2, 1.2))
+ax.set_aspect('equal')
+ax.grid()
+ax.plot(x1x,x1y, 'b-', label='limit cycle')
+
+line, = ax.plot([], [], 'ro', lw=2, markersize=12)
+
+def init():
+    line.set_data([], [])
+    return line,
+
+def animate(i):
+    line.set_data(x1x[i], x1y[i])
+    return line,
+
+ani = animation.FuncAnimation(fig, animate,
+                              interval=25, blit=True, init_func=init)
+anim.save('limit_cycle normal.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+plt.show()
+
+
+
 """
