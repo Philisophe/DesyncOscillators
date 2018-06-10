@@ -1265,7 +1265,7 @@ plt.plot(phab) # The phase difference
 
 #################
 # Animation created!
-
+import matplotlib.animation as animation
 t = np.linspace(0,100,500)
 n=1
 state0=[1,0]
@@ -1279,6 +1279,9 @@ ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1.2, 1.2), ylim=(-1.2, 1.2)
 ax.set_aspect('equal')
 ax.grid()
 ax.plot(x1x,x1y, 'b-', label='limit cycle')
+plt.xlabel('x-coordinate')
+plt.ylabel('y-coordinate')
+plt.legend()
 
 line, = ax.plot([], [], 'ro', lw=2, markersize=12)
 
@@ -1291,10 +1294,9 @@ def animate(i):
     return line,
 
 ani = animation.FuncAnimation(fig, animate,
-                              interval=25, blit=True, init_func=init)
-anim.save('limit_cycle normal.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+                              interval=25, blit=True, init_func=init, save_count=500)
+#ani.save('limit_cycle normal.mp4', fps=35, dpi=250, extra_args=['-vcodec', 'libx264'])
 plt.show()
-
 
 
 """
